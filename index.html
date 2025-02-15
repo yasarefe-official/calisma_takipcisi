@@ -1,0 +1,901 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Çalışma Takipçisi</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
+    <link href="/themes.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Light theme variables */
+            --primary-color: #007AFF;
+            --success-color: #34C759;
+            --danger-color: #FF3B30;
+            --warning-color: #FFCC00;
+            --background-color: #F2F2F7;
+            --card-background: #FFFFFF;
+            --text-color: #000000;
+            --text-secondary: #666666;
+            --border-color: rgba(0,0,0,0.1);
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --primary-color: #0A84FF;
+            --success-color: #30D158;
+            --danger-color: #FF453A;
+            --warning-color: #FFD60A;
+            --background-color: #1C1C1E;
+            --card-background: #2C2C2E;
+            --text-color: #FFFFFF;
+            --text-secondary: #EBEBF5;
+            --border-color: rgba(255,255,255,0.1);
+        }
+
+        body {
+            color: var(--text-color);
+        }
+
+        .container {
+            background: var(--card-background);
+        }
+
+        /* Theme toggle styles */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle i {
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* Streak Display */
+        .streak-display {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: var(--card-background);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .streak-display i {
+            color: #FFD700;
+        }
+
+        .streak-count {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .streak-display-large {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+        }
+
+        .streak-count-large {
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 24px;
+        }
+
+        /* Reward Timer */
+        .reward-timer {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--card-background);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .reward-timer.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            line-height: 1.4;
+            padding: 16px;
+            max-width: 100%;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+            padding-bottom: 80px;
+            margin-bottom: 0;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header {
+            padding: 20px;
+            background: var(--card-background);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .subject-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            background: var(--card-background);
+            gap: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .subject-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--background-color);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .subject-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .input-group {
+            margin: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+        }
+
+        .input-group h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
+        }
+
+        .net-result {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            padding: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .button-group {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .level-details {
+            display: none;
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 280px;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .level-details.visible {
+            display: block;
+        }
+
+        .rp-info {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .rp-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .rp-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .next-level {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .next-level span {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .level-explanation {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--background-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* Level badge colors */
+        .bronze { background: #CD7F32; }
+        .silver { background: #C0C0C0; }
+        .gold { background: #FFD700; }
+        .platinum { background: #E5E4E2; }
+        .diamond { background: #B9F2FF; }
+        .master { background: #FF4654; }
+        .grandmaster { background: #FFD700; background-image: linear-gradient(45deg, #FFD700, #FFA500); }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Update table styles for better mobile responsiveness */
+        #historyTable2 {
+            width: 100%;
+            margin: 15px;
+            border-collapse: collapse;
+            background: var(--card-background);
+            border-radius: 12px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        #historyTable2 th,
+        #historyTable2 td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--background-color);
+            white-space: nowrap;
+        }
+
+        #historyTable2 th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Horizontal scroll container for mobile */
+        .table-container {
+            width: calc(100% - 30px);
+            margin: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 480px) {
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #historyTable2 th,
+            #historyTable2 td {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+        
+        .version-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .points-preview {
+            margin: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+        }
+
+        .points-detail {
+            font-size: 16px;
+        }
+
+        .point-item {
+            margin-bottom: 10px;
+        }
+
+        .point-item.total {
+            font-weight: bold;
+        }
+        
+        /* Streak Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContent">
+        <span class="version-text">v8</span>
+        
+        <div class="reward-timer">
+            Ödül için kalan süre: <span id="rewardTime">5:00</span>
+        </div>
+        
+        <div id="dataPage" class="page active">
+            <div class="container">
+                <div class="header">
+                    <div class="title-container">
+                        <h1>Çalışma Takipçisi</h1>
+                        <div class="money-display">
+                            <i class="material-icons">monetization_on</i>
+                            <span id="moneyAmount">0</span>
+                        </div>
+                    </div>
+                    <div id="currentLevel" class="level-badge bronze">Bronz III</div>
+                </div>
+
+                <div class="level-details">
+                    <div class="rp-info">
+                        <div class="rp-title">Toplam RP Puanı</div>
+                        <div class="rp-value" id="totalRP">0</div>
+                    </div>
+                    <div class="rp-info">
+                        <div class="rp-title">Günlük RP Puanı</div>
+                        <div class="rp-value" id="dailyRP">0</div>
+                    </div>
+                    <div class="next-level" id="nextLevel">
+                        Sonraki seviye: <span>Bronz II</span>
+                    </div>
+                    <div class="level-multiplier">
+                        Kalıcı RP Çarpanı: <span id="rpMultiplier">1.0</span>x
+                        <button id="upgradeMultiplier" class="upgrade-btn">
+                            Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                        </button>
+                    </div>
+                    <div class="daily-multiplier">
+                        Günlük RP Çarpanı: <span id="dailyMultiplier">1.0</span>x
+                        <button id="upgradeDailyMultiplier" class="upgrade-btn">
+                            Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                        </button>
+                    </div>
+                    <div class="progress-bar" style="margin-top: 15px;">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                        <div id="progressText" class="progress-text">0/100 XP</div>
+                    </div>
+                    <div class="level-explanation">
+                        Her doğru için kalıcı kademede <span id="permMultiplier">1.0</span>x, günlük kademede 1.5x RP puanı kazanırsınız.
+                        <br>Gün sonunda günlük RP'nin çeyreği kadar para kazanırsınız.
+                    </div>
+                </div>
+
+                <div class="subject-tabs">
+                    <button class="subject-tab active" onclick="changeSubject('turkce')">Türkçe</button>
+                    <button class="subject-tab" onclick="changeSubject('matematik')">Matematik</button>
+                    <button class="subject-tab" onclick="changeSubject('fen')">Fen Bilimleri</button>
+                    <button class="subject-tab" onclick="changeSubject('sosyal')">Sosyal Bilgiler</button>
+                    <button class="subject-tab" onclick="changeSubject('ingilizce')">İngilizce</button>
+                    <button class="subject-tab" onclick="changeSubject('din')">Din Kültürü</button>
+                </div>
+                
+                <div class="input-group">
+                    <h3>Test Sonucları</h3>
+                    <input type="number" id="dogru" placeholder="Doğru Sayısı" min="0">
+                    <input type="number" id="yanlis" placeholder="Yanlış Sayısı" min="0">
+                    <input type="number" id="bos" placeholder="Boş Sayısı" min="0">
+                    <div class="net-result" id="netSonuc">Net: 0.00</div>
+                </div>
+
+                <div class="input-group">
+                    <h3>Okuma Takibi</h3>
+                    <input type="number" id="kuran" placeholder="Kur'an Sayfası" min="0">
+                    <input type="number" id="hikaye" placeholder="Hikaye Sayfası" min="0">
+                </div>
+
+                <div class="points-preview">
+                    <h3>Kazanılacak Puanlar</h3>
+                    <div class="points-detail">
+                        <div class="point-item">
+                            <span>Test Puanı:</span>
+                            <span id="testPoints">0</span>
+                        </div>
+                        <div class="point-item">
+                            <span>Kur'an Okuma Puanı:</span>
+                            <span id="kuranPoints">0</span>
+                        </div>
+                        <div class="point-item">
+                            <span>Kitap Okuma Puanı:</span>
+                            <span id="kitapPoints">0</span>
+                        </div>
+                        <div class="point-item total">
+                            <span>Toplam:</span>
+                            <span id="totalPointsPreview">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="kaydet()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tablePage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Çalışma Geçmişi</h1>
+                </div>
+                <div class="table-controls">
+                    <div class="select-wrapper">
+                        <input type="checkbox" class="select-all-checkbox" id="selectAll">
+                        <label for="selectAll">Tümünü Seç</label>
+                    </div>
+                    <button class="delete-btn" id="deleteSelected" disabled>
+                        <i class="material-icons">delete</i>
+                        <span>Seçilenleri Sil</span>
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="historyTable2">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell"></th>
+                                <th>Tarih</th>
+                                <th>Ders</th>
+                                <th>Doğru</th>
+                                <th>Yanlış</th>
+                                <th>Boş</th>
+                                <th>Net</th>
+                                <th>Kur'an</th>
+                                <th>Hikaye</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="levelsPage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Kademe Bilgileri</h1>
+                </div>
+                
+                <div class="streak-card">
+                    <div class="streak-display-large">
+                        <i class="material-icons">local_fire_department</i>
+                        <span class="streak-count-large" id="streakCountLarge">0 gün</span>
+                    </div>
+                </div>
+                
+                <div class="levels-page">
+                    <div class="level-card">
+                        <h2>Kalıcı Kademe</h2>
+                        <div class="level!-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Mevcut Kademe:</span>
+                                <span class="stat-value" id="currentLevelInfo">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">İlerleme:</span>
+                                <div class="progress-bar">
+                                    <div id="levelProgressFill" class="progress-fill"></div>
+                                    <div id="levelProgressText" class="progress-text">0/100 XP</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sonraki Kademe:</span>
+                                <span class="stat-value" id="nextLevelInfo">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-info">
+                            <p>Her doğru başına <strong><span id="permMultiplierInfo">1.0</span>x</strong> puan kazanırsınız.</p>
+                            <p>Toplam Puan: <strong><span id="totalPointsInfo">0</span></strong></p>
+                        </div>
+                        
+                        <div class="upgrade-section">
+                            <div class="current-multiplier">
+                                Mevcut Çarpan: <span id="currentMultiplier">0.5</span>x
+                            </div>
+                            <button onclick="upgradeMultiplier()" class="upgrade-btn">
+                                Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card">
+                        <h2>Günlük Kademe</h2>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Mevcut Kademe:</span>
+                                <span class="stat-value" id="currentDailyLevelInfo">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">İlerleme:</span>
+                                <div class="progress-bar">
+                                    <div id="dailyProgressFill" class="progress-fill"></div>
+                                    <div id="dailyProgressText" class="progress-text">0/100 XP</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sonraki Kademe:</span>
+                                <span class="stat-value" id="nextDailyLevelInfo">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-info">
+                            <p>Her doğru başına <strong><span id="dailyMultiplierValue">1.5</span>x</strong> puan kazanırsınız.</p>
+                            <p>Günlük Puan: <strong><span id="dailyRPInfo">0</span></strong></p>
+                            <p>Ödül Süresi: <strong><span id="rewardTimeDisplay">Bekleniyor...</span></strong></p>
+                        </div>
+
+                        <div class="upgrade-section">
+                            <div class="current-multiplier">
+                                Günlük RP Çarpanı: <span id="dailyMultiplierInfo">1.5</span>x
+                            </div>
+                            <button onclick="upgradeDailyMultiplier()" class="upgrade-btn">
+                                Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card">
+                        <h2>Tüm Kademeler</h2>
+                        <div class="level-list">
+                            <div class="level-item bronze">Bronz III</div>
+                            <div class="level-item bronze">Bronz II Plus</div>
+                            <div class="level-item bronze">Bronz II</div>
+                            <div class="level-item bronze">Bronz II Elite</div>
+                            <div class="level-item bronze">Bronz I Plus</div>
+                            <div class="level-item bronze">Bronz I</div>
+                            <div class="level-item bronze">Bronz I Elite</div>
+                            <div class="level-item silver">Gümüş III Plus</div>
+                            <div class="level-item silver">Gümüş III</div>
+                            <div class="level-item silver">Gümüş III Elite</div>
+                            <div class="level-item silver">Gümüş II Plus</div>
+                            <div class="level-item silver">Gümüş II</div>
+                            <div class="level-item silver">Gümüş II Elite</div>
+                            <div class="level-item silver">Gümüş I Plus</div>
+                            <div class="level-item silver">Gümüş I</div>
+                            <div class="level-item silver">Gümüş I Elite</div>
+                            <div class="level-item gold">Altın III Plus</div>
+                            <div class="level-item gold">Altın III</div>
+                            <div class="level-item gold">Altın III Elite</div>
+                            <div class="level-item gold">Altın II Plus</div>
+                            <div class="level-item gold">Altın II</div>
+                            <div class="level-item gold">Altın II Elite</div>
+                            <div class="level-item gold">Altın I Plus</div>
+                            <div class="level-item gold">Altın I</div>
+                            <div class="level-item gold">Altın I Elite</div>
+                            <div class="level-item platinum">Platin III Plus</div>
+                            <div class="level-item platinum">Platin III</div>
+                            <div class="level-item platinum">Platin III Elite</div>
+                            <div class="level-item platinum">Platin II Plus</div>
+                            <div class="level-item platinum">Platin II</div>
+                            <div class="level-item platinum">Platin II Elite</div>
+                            <div class="level-item platinum">Platin I</div>
+                            <div class="level-item diamond">Elmas III</div>
+                            <div class="level-item diamond">Elmas II</div>
+                            <div class="level-item diamond">Elmas I</div>
+                            <div class="level-item master">Usta III</div>
+                            <div class="level-item master">Usta II</div>
+                            <div class="level-item master">Usta I</div>
+                            <div class="level-item grandmaster">Büyük Usta III</div>
+                            <div class="level-item grandmaster">Büyük Usta II</div>
+                            <div class="level-item grandmaster">Büyük Usta I</div>
+                            <div class="level-item grandmaster">Efsanevi III</div>
+                            <div class="level-item grandmaster">Efsanevi II</div>
+                            <div class="level-item grandmaster">Efsanevi I</div>
+                        </div>
+                        <button onclick="resetLevels()" class="reset-btn">Kademe Verilerini Sıfırla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsPage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Ayarlar</h1>
+                </div>
+                <div class="settings-section">
+                    <h2>Tema Ayarları</h2>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Karanlık Mod</span>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>Veri Yönetimi</h2>
+                    <div class="setting-item">
+                        <button onclick="exportData()" class="settings-btn">
+                            <i class="material-icons">file_download</i>
+                            Verileri Dışa Aktar
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <input type="file" id="importFile" accept=".json" style="display: none" onchange="importData(event)">
+                        <button onclick="document.getElementById('importFile').click()" class="settings-btn">
+                            <i class="material-icons">file_upload</i>
+                            Verileri İçe Aktar
+                        </button>
+                    </div>
+                    <div class="last-export-info">
+                        Son dışa aktarma: <span id="lastExportDate">Hiç</span>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Okuma Takibi Ayarları</h2>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="kuranToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Kur'an Okuma Takibi</span>
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="kitapToggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Kitap Okuma Takibi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-page="dataPage">
+                <i class="material-icons">edit</i>
+                <span>Kayıt</span>
+            </a>
+            <a href="#" class="nav-item" data-page="tablePage">
+                <i class="material-icons">table_chart</i>
+                <span>Tablo</span>
+            </a>
+            <a href="#" class="nav-item" data-page="levelsPage">
+                <i class="material-icons">military_tech</i>
+                <span>Kademeler</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settingsPage">
+                <i class="material-icons">settings</i>
+                <span>Ayarlar</span>
+            </a>
+        </nav>
+        
+        <!-- Streak Details Modal -->
+        <div id="streakModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Seri Detayları</h2>
+                <div class="streak-details">
+                    <p>Mevcut Seri: <span id="currentStreak">0</span> gün</p>
+                    <p>En Yüksek Seri: <span id="highestStreak">0</span> gün</p>
+                    <p>Toplam Kazanılan Para: <span id="totalStreakMoney">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/app.js"></script>
+    <script src="/themes.js"></script>
+    <script src="/streak.js"></script>
+    <script src="/levels.js"></script>
+    <script src="/table.js"></script>
+</body>
+</html>
