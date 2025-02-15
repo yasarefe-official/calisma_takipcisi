@@ -1,0 +1,1221 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Çalışma Takipçisi</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --success-color: #34C759;
+            --danger-color: #FF3B30;
+            --warning-color: #FFCC00;
+            --background-color: #F2F2F7;
+            --card-background: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: #000;
+            line-height: 1.4;
+            padding: 16px;
+            max-width: 100%;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: var(--card-background);
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+            padding-bottom: 80px;
+            margin-bottom: 0;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header {
+            padding: 20px;
+            background: var(--card-background);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .subject-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            background: var(--card-background);
+            gap: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .subject-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--background-color);
+            border: none;
+            color: #000;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .subject-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .input-group {
+            margin: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+        }
+
+        .input-group h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
+        }
+
+        .net-result {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            padding: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .button-group {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .level-details {
+            display: none;
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 280px;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .level-details.visible {
+            display: block;
+        }
+
+        .rp-info {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .rp-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .rp-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .next-level {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .next-level span {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .level-explanation {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--background-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* Level badge colors */
+        .bronze { background: #CD7F32; }
+        .silver { background: #C0C0C0; }
+        .gold { background: #FFD700; }
+        .platinum { background: #E5E4E2; }
+        .diamond { background: #B9F2FF; }
+        .master { background: #FF4654; }
+        .grandmaster { background: #FFD700; background-image: linear-gradient(45deg, #FFD700, #FFA500); }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Update table styles for better mobile responsiveness */
+        #historyTable2 {
+            width: 100%;
+            margin: 15px;
+            border-collapse: collapse;
+            background: var(--card-background);
+            border-radius: 12px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        #historyTable2 th,
+        #historyTable2 td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--background-color);
+            white-space: nowrap;
+        }
+
+        #historyTable2 th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Horizontal scroll container for mobile */
+        .table-container {
+            width: calc(100% - 30px);
+            margin: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 480px) {
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #historyTable2 th,
+            #historyTable2 td {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+        
+        .version-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #666;
+            opacity: 0.8;
+        }
+
+        .notification-settings {
+            padding: 20px;
+        }
+
+        .notification-card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .notification-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--background-color);
+            font-size: 14px;
+        }
+
+        .points-preview {
+            margin: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 12px;
+        }
+
+        .points-detail {
+            font-size: 16px;
+        }
+
+        .point-item {
+            margin-bottom: 10px;
+        }
+
+        .point-item.total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContent">
+        <span class="version-text">v2.34</span>
+        
+        <div id="dataPage" class="page active">
+            <div class="container">
+                <div class="header">
+                    <div class="title-container">
+                        <h1>Çalışma Takipçisi</h1>
+                        <div class="money-display">
+                            <i class="material-icons">monetization_on</i>
+                            <span id="moneyAmount">0</span>
+                        </div>
+                    </div>
+                    <div id="currentLevel" class="level-badge bronze">Bronz III</div>
+                </div>
+
+                <div class="level-details">
+                    <div class="rp-info">
+                        <div class="rp-title">Toplam RP Puanı</div>
+                        <div class="rp-value" id="totalRP">0</div>
+                    </div>
+                    <div class="rp-info">
+                        <div class="rp-title">Günlük RP Puanı</div>
+                        <div class="rp-value" id="dailyRP">0</div>
+                    </div>
+                    <div class="next-level" id="nextLevel">
+                        Sonraki seviye: <span>Bronz II</span>
+                    </div>
+                    <div class="level-multiplier">
+                        Kalıcı RP Çarpanı: <span id="rpMultiplier">1.0</span>x
+                        <button id="upgradeMultiplier" class="upgrade-btn">
+                            Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                        </button>
+                    </div>
+                    <div class="daily-multiplier">
+                        Günlük RP Çarpanı: <span id="dailyMultiplier">1.0</span>x
+                        <button id="upgradeDailyMultiplier" class="upgrade-btn">
+                            Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                        </button>
+                    </div>
+                    <div class="progress-bar" style="margin-top: 15px;">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                        <div id="progressText" class="progress-text">0/100 XP</div>
+                    </div>
+                    <div class="level-explanation">
+                        Her doğru için kalıcı kademede <span id="permMultiplier">1.0</span>x, günlük kademede 1.5x RP puanı kazanırsınız.
+                        <br>Gün sonunda günlük RP'nin çeyreği kadar para kazanırsınız.
+                    </div>
+                </div>
+
+                <div class="subject-tabs">
+                    <button class="subject-tab active" onclick="changeSubject('turkce')">Türkçe</button>
+                    <button class="subject-tab" onclick="changeSubject('matematik')">Matematik</button>
+                    <button class="subject-tab" onclick="changeSubject('fen')">Fen Bilimleri</button>
+                    <button class="subject-tab" onclick="changeSubject('sosyal')">Sosyal Bilgiler</button>
+                    <button class="subject-tab" onclick="changeSubject('ingilizce')">İngilizce</button>
+                    <button class="subject-tab" onclick="changeSubject('din')">Din Kültürü</button>
+                </div>
+                
+                <div class="input-group">
+                    <h3>Test Sonucları</h3>
+                    <input type="number" id="dogru" placeholder="Doğru Sayısı" min="0">
+                    <input type="number" id="yanlis" placeholder="Yanlış Sayısı" min="0">
+                    <input type="number" id="bos" placeholder="Boş Sayısı" min="0">
+                    <div class="net-result" id="netSonuc">Net: 0.00</div>
+                </div>
+
+                <div class="input-group">
+                    <h3>Okuma Takibi</h3>
+                    <input type="number" id="kuran" placeholder="Kur'an Sayfası" min="0">
+                    <input type="number" id="hikaye" placeholder="Hikaye Sayfası" min="0">
+                </div>
+
+                <div class="points-preview">
+                    <h3>Kazanılacak Puanlar</h3>
+                    <div class="points-detail">
+                        <div class="point-item">
+                            <span>Test Puanı:</span>
+                            <span id="testPoints">0</span>
+                        </div>
+                        <div class="point-item">
+                            <span>Kur'an Okuma Puanı:</span>
+                            <span id="kuranPoints">0</span>
+                        </div>
+                        <div class="point-item">
+                            <span>Kitap Okuma Puanı:</span>
+                            <span id="kitapPoints">0</span>
+                        </div>
+                        <div class="point-item total">
+                            <span>Toplam:</span>
+                            <span id="totalPointsPreview">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="kaydet()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tablePage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Çalışma Geçmişi</h1>
+                </div>
+                <div class="table-controls">
+                    <div class="select-wrapper">
+                        <input type="checkbox" class="select-all-checkbox" id="selectAll">
+                        <label for="selectAll">Tümünü Seç</label>
+                    </div>
+                    <button class="delete-btn" id="deleteSelected" disabled>
+                        <i class="material-icons">delete</i>
+                        <span>Seçilenleri Sil</span>
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="historyTable2">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell"></th>
+                                <th>Tarih</th>
+                                <th>Ders</th>
+                                <th>Doğru</th>
+                                <th>Yanlış</th>
+                                <th>Boş</th>
+                                <th>Net</th>
+                                <th>Kur'an</th>
+                                <th>Hikaye</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="levelsPage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Kademe Bilgileri</h1>
+                </div>
+                
+                <div class="levels-page">
+                    <div class="level-card">
+                        <h2>Kalıcı Kademe</h2>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Mevcut Kademe:</span>
+                                <span class="stat-value" id="currentLevelInfo">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">İlerleme:</span>
+                                <div class="progress-bar">
+                                    <div id="levelProgressFill" class="progress-fill"></div>
+                                    <div id="levelProgressText" class="progress-text">0/100 XP</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sonraki Kademe:</span>
+                                <span class="stat-value" id="nextLevelInfo">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-info">
+                            <p>Her doğru başına <strong><span id="permMultiplierInfo">1.0</span>x</strong> puan kazanırsınız.</p>
+                            <p>Toplam Puan: <strong><span id="totalPointsInfo">0</span></strong></p>
+                        </div>
+                        
+                        <div class="upgrade-section">
+                            <div class="current-multiplier">
+                                Mevcut Çarpan: <span id="currentMultiplier">0.5</span>x
+                            </div>
+                            <button onclick="upgradeMultiplier()" class="upgrade-btn">
+                                Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card">
+                        <h2>Günlük Kademe</h2>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Mevcut Kademe:</span>
+                                <span class="stat-value" id="currentDailyLevelInfo">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">İlerleme:</span>
+                                <div class="progress-bar">
+                                    <div id="dailyProgressFill" class="progress-fill"></div>
+                                    <div id="dailyProgressText" class="progress-text">0/100 XP</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sonraki Kademe:</span>
+                                <span class="stat-value" id="nextDailyLevelInfo">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-info">
+                            <p>Her doğru başına <strong><span id="dailyMultiplierValue">1.5</span>x</strong> puan kazanırsınız.</p>
+                            <p>Günlük Puan: <strong><span id="dailyRPInfo">0</span></strong></p>
+                            <p>Yarın kazanılacak para: <strong><span id="tomorrowMoneyInfo">0</span></strong> <i class="material-icons tiny">monetization_on</i></p>
+                        </div>
+
+                        <div class="upgrade-section">
+                            <div class="current-multiplier">
+                                Günlük RP Çarpanı: <span id="dailyMultiplierInfo">1.5</span>x
+                            </div>
+                            <button onclick="upgradeDailyMultiplier()" class="upgrade-btn">
+                                Geliştir (100 <i class="material-icons tiny">monetization_on</i>)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card">
+                        <h2>Tüm Kademeler</h2>
+                        <div class="level-list">
+                            <div class="level-item bronze">Bronz III</div>
+                            <div class="level-item bronze">Bronz II Plus</div>
+                            <div class="level-item bronze">Bronz II</div>
+                            <div class="level-item bronze">Bronz II Elite</div>
+                            <div class="level-item bronze">Bronz I Plus</div>
+                            <div class="level-item bronze">Bronz I</div>
+                            <div class="level-item bronze">Bronz I Elite</div>
+                            <div class="level-item silver">Gümüş III Plus</div>
+                            <div class="level-item silver">Gümüş III</div>
+                            <div class="level-item silver">Gümüş III Elite</div>
+                            <div class="level-item silver">Gümüş II Plus</div>
+                            <div class="level-item silver">Gümüş II</div>
+                            <div class="level-item silver">Gümüş II Elite</div>
+                            <div class="level-item silver">Gümüş I Plus</div>
+                            <div class="level-item silver">Gümüş I</div>
+                            <div class="level-item silver">Gümüş I Elite</div>
+                            <div class="level-item gold">Altın III Plus</div>
+                            <div class="level-item gold">Altın III</div>
+                            <div class="level-item gold">Altın III Elite</div>
+                            <div class="level-item gold">Altın II Plus</div>
+                            <div class="level-item gold">Altın II</div>
+                            <div class="level-item gold">Altın II Elite</div>
+                            <div class="level-item gold">Altın I Plus</div>
+                            <div class="level-item gold">Altın I</div>
+                            <div class="level-item gold">Altın I Elite</div>
+                            <div class="level-item platinum">Platin III Plus</div>
+                            <div class="level-item platinum">Platin III</div>
+                            <div class="level-item platinum">Platin III Elite</div>
+                            <div class="level-item platinum">Platin II Plus</div>
+                            <div class="level-item platinum">Platin II</div>
+                            <div class="level-item platinum">Platin II Elite</div>
+                            <div class="level-item platinum">Platin I</div>
+                            <div class="level-item diamond">Elmas III</div>
+                            <div class="level-item diamond">Elmas II</div>
+                            <div class="level-item diamond">Elmas I</div>
+                            <div class="level-item master">Usta III</div>
+                            <div class="level-item master">Usta II</div>
+                            <div class="level-item master">Usta I</div>
+                            <div class="level-item grandmaster">Büyük Usta III</div>
+                            <div class="level-item grandmaster">Büyük Usta II</div>
+                            <div class="level-item grandmaster">Büyük Usta I</div>
+                            <div class="level-item grandmaster">Efsanevi III</div>
+                            <div class="level-item grandmaster">Efsanevi II</div>
+                            <div class="level-item grandmaster">Efsanevi I</div>
+                        </div>
+                        <button onclick="resetLevels()" class="reset-btn">Kademe Verilerini Sıfırla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsPage" class="page">
+            <div class="container">
+                <div class="header">
+                    <h1>Ayarlar</h1>
+                </div>
+                <div class="notification-settings">
+                    <div class="notification-card">
+                        <h2>Bildirim Ayarları</h2>
+                        <div class="setting-item">
+                            <label class="switch">
+                                <input type="checkbox" id="notificationToggle">
+                                <span class="slider round"></span>
+                            </label>
+                            <span>Bildirimleri Etkinleştir</span>
+                        </div>
+                        <div class="notification-status" id="notificationStatus">
+                            Bildirim izni bekleniyor...
+                        </div>
+                        <div class="time-selector">
+                            <div class="time-setting">
+                                <label>Sabah Hatırlatıcısı:</label>
+                                <input type="time" id="morningTime" value="09:00">
+                            </div>
+                            <div class="time-setting">
+                                <label>Öğle Hatırlatıcısı:</label>
+                                <input type="time" id="afternoonTime" value="15:00">
+                            </div>
+                            <div class="time-setting">
+                                <label>Akşam Hatırlatıcısı:</label>
+                                <input type="time" id="eveningTime" value="20:00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-page="dataPage">
+                <i class="material-icons">edit</i>
+                <span>Kayıt</span>
+            </a>
+            <a href="#" class="nav-item" data-page="tablePage">
+                <i class="material-icons">table_chart</i>
+                <span>Tablo</span>
+            </a>
+            <a href="#" class="nav-item" data-page="levelsPage">
+                <i class="material-icons">military_tech</i>
+                <span>Kademeler</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settingsPage">
+                <i class="material-icons">settings</i>
+                <span>Ayarlar</span>
+            </a>
+        </nav>
+    </div>
+    
+    <script>
+        let currentSubject = 'turkce';
+        let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
+        let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+        let dailyRP = parseInt(localStorage.getItem('dailyRP')) || 0;
+        let money = parseInt(localStorage.getItem('money')) || 0;
+        let rpMultiplier = parseFloat(localStorage.getItem('rpMultiplier')) || 0.5;
+        let dailyMultiplier = parseFloat(localStorage.getItem('dailyMultiplier')) || 1.0;
+
+        const LEVELS = {
+            'Bronz III': { min: 0, max: 100, badge: 'bronze' },
+            'Bronz II Plus': { min: 100, max: 200, badge: 'bronze' },
+            'Bronz II': { min: 200, max: 300, badge: 'bronze' },
+            'Bronz II Elite': { min: 300, max: 400, badge: 'bronze' },
+            'Bronz I Plus': { min: 400, max: 500, badge: 'bronze' },
+            'Bronz I': { min: 500, max: 600, badge: 'bronze' },
+            'Bronz I Elite': { min: 600, max: 700, badge: 'bronze' },
+            'Gümüş III Plus': { min: 700, max: 800, badge: 'silver' },
+            'Gümüş III': { min: 800, max: 900, badge: 'silver' },
+            'Gümüş III Elite': { min: 900, max: 1000, badge: 'silver' },
+            'Gümüş II Plus': { min: 1000, max: 1100, badge: 'silver' },
+            'Gümüş II': { min: 1100, max: 1200, badge: 'silver' },
+            'Gümüş II Elite': { min: 1200, max: 1300, badge: 'silver' },
+            'Gümüş I Plus': { min: 1300, max: 1400, badge: 'silver' },
+            'Gümüş I': { min: 1400, max: 1500, badge: 'silver' },
+            'Gümüş I Elite': { min: 1500, max: 1600, badge: 'silver' },
+            'Altın III Plus': { min: 1600, max: 1700, badge: 'gold' },
+            'Altın III': { min: 1700, max: 1800, badge: 'gold' },
+            'Altın III Elite': { min: 1800, max: 1900, badge: 'gold' },
+            'Altın II Plus': { min: 1900, max: 2000, badge: 'gold' },
+            'Altın II': { min: 2000, max: 2100, badge: 'gold' },
+            'Altın II Elite': { min: 2100, max: 2200, badge: 'gold' },
+            'Altın I Plus': { min: 2200, max: 2300, badge: 'gold' },
+            'Altın I': { min: 2300, max: 2400, badge: 'gold' },
+            'Altın I Elite': { min: 2400, max: 2500, badge: 'gold' },
+            'Platin III Plus': { min: 2500, max: 2600, badge: 'platinum' },
+            'Platin III': { min: 2600, max: 2700, badge: 'platinum' },
+            'Platin III Elite': { min: 2700, max: 2800, badge: 'platinum' },
+            'Platin II Plus': { min: 2800, max: 2900, badge: 'platinum' },
+            'Platin II': { min: 2900, max: 3000, badge: 'platinum' },
+            'Platin II Elite': { min: 3000, max: 3100, badge: 'platinum' },
+            'Platin I': { min: 3100, max: 3200, badge: 'platinum' },
+            'Elmas III': { min: 3200, max: 3300, badge: 'diamond' },
+            'Elmas II': { min: 3300, max: 3400, badge: 'diamond' },
+            'Elmas I': { min: 3400, max: 3500, badge: 'diamond' },
+            'Usta III': { min: 3500, max: 3600, badge: 'master' },
+            'Usta II': { min: 3600, max: 3700, badge: 'master' },
+            'Usta I': { min: 3700, max: 3800, badge: 'master' },
+            'Büyük Usta III': { min: 3800, max: 3900, badge: 'grandmaster' },
+            'Büyük Usta II': { min: 3900, max: 4000, badge: 'grandmaster' },
+            'Büyük Usta I': { min: 4000, max: 4100, badge: 'grandmaster' },
+            'Efsanevi III': { min: 4100, max: 4200, badge: 'grandmaster' },
+            'Efsanevi II': { min: 4200, max: 4300, badge: 'grandmaster' },
+            'Efsanevi I': { min: 4300, max: Infinity, badge: 'grandmaster' }
+        };
+
+        function calculatePoints(dogru, kuranSayfa, kitapSayfa) {
+            const testPoints = Math.floor(dogru * rpMultiplier);
+            const kuranPoints = Math.floor(kuranSayfa * 0.6);
+            const kitapPoints = Math.floor(kitapSayfa * 0.4);
+            return {
+                testPoints,
+                kuranPoints,
+                kitapPoints,
+                total: testPoints + kuranPoints + kitapPoints
+            };
+        }
+
+        function calculateDailyPoints(dogru, kuranSayfa, kitapSayfa) {
+            const testPoints = Math.floor(dogru * 1.5 * dailyMultiplier);
+            const kuranPoints = Math.floor(kuranSayfa * 1.6);
+            const kitapPoints = Math.floor(kitapSayfa * 1.4);
+            return {
+                testPoints,
+                kuranPoints,
+                kitapPoints,
+                total: testPoints + kuranPoints + kitapPoints
+            };
+        }
+
+        function getCurrentLevel(points) {
+            let nextLevelName = null;
+            for (let [level, range] of Object.entries(LEVELS)) {
+                if (points >= range.min && points < range.max) {
+                    const levelIndex = Object.keys(LEVELS).indexOf(level);
+                    nextLevelName = Object.keys(LEVELS)[levelIndex + 1];
+                    return {
+                        name: level,
+                        nextLevel: nextLevelName,
+                        ...range,
+                        progress: ((points - range.min) / (range.max - range.min)) * 100
+                    };
+                }
+            }
+            return null;
+        }
+
+        function changeSubject(subject) {
+            currentSubject = subject;
+            document.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function calculateNet() {
+            const dogru = parseFloat(document.getElementById('dogru').value) || 0;
+            const yanlis = parseFloat(document.getElementById('yanlis').value) || 0;
+            const net = dogru - yanlis * 0.25;
+            document.getElementById('netSonuc').textContent = `Net: ${net.toFixed(2)}`;
+            return net;
+        }
+
+        function updatePointsPreview() {
+            const dogru = parseInt(document.getElementById('dogru').value) || 0;
+            const kuranSayfa = parseInt(document.getElementById('kuran').value) || 0;
+            const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
+
+            const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
+            const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
+
+            document.getElementById('testPoints').textContent = 
+                `${points.testPoints} (Günlük: ${dailyPoints.testPoints})`;
+            document.getElementById('kuranPoints').textContent = 
+                `${points.kuranPoints} (Günlük: ${dailyPoints.kuranPoints})`;
+            document.getElementById('kitapPoints').textContent = 
+                `${points.kitapPoints} (Günlük: ${dailyPoints.kitapPoints})`;
+            document.getElementById('totalPointsPreview').textContent = 
+                `${points.total} (Günlük: ${dailyPoints.total})`;
+        }
+
+        function kaydet() {
+            const dogru = parseInt(document.getElementById('dogru').value) || 0;
+            const kuranSayfa = parseInt(document.getElementById('kuran').value) || 0;
+            const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
+
+            const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
+            const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
+            
+            totalPoints += points.total;
+            dailyRP += dailyPoints.total;
+            
+            localStorage.setItem('totalPoints', totalPoints);
+            localStorage.setItem('dailyRP', dailyRP);
+            
+            updateLevelUI();
+            
+            const yeniCalisma = {
+                tarih: new Date().toLocaleDateString('tr-TR'),
+                ders: currentSubject,
+                dogru: dogru,
+                yanlis: parseInt(document.getElementById('yanlis').value) || 0,
+                bos: parseInt(document.getElementById('bos').value) || 0,
+                net: calculateNet(),
+                kuran: kuranSayfa,
+                hikaye: kitapSayfa
+            };
+            calismalar.push(yeniCalisma);
+            localStorage.setItem('calismalar', JSON.stringify(calismalar));
+            tabloyuGuncelle();
+            formuTemizle();
+        }
+
+        function temizle() {
+            if (confirm('Tüm veriler ve seviye bilgileri silinecek. Emin misiniz?')) {
+                localStorage.removeItem('totalPoints');
+                totalPoints = 0;
+                updateLevelUI();
+                localStorage.removeItem('calismalar');
+                calismalar = [];
+                tabloyuGuncelle();
+            }
+        }
+
+        function tabloyuGuncelle() {
+            const tbody2 = document.querySelector('#historyTable2 tbody');
+            tbody2.innerHTML = '';
+            calismalar.forEach((calisma, index) => {
+                const row = tbody2.insertRow();
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="row-checkbox" data-index="${index}">
+                    </td>
+                    <td>${calisma.tarih}</td>
+                    <td>${calisma.ders}</td>
+                    <td>${calisma.dogru}</td>
+                    <td>${calisma.yanlis}</td>
+                    <td>${calisma.bos}</td>
+                    <td>${calisma.net.toFixed(2)}</td>
+                    <td>${calisma.kuran}</td>
+                    <td>${calisma.hikaye}</td>
+                `;
+            });
+            updateDeleteButtonState();
+        }
+
+        function formuTemizle() {
+            document.getElementById('dogru').value = '';
+            document.getElementById('yanlis').value = '';
+            document.getElementById('bos').value = '';
+            document.getElementById('kuran').value = '';
+            document.getElementById('hikaye').value = '';
+            document.getElementById('netSonuc').textContent = 'Net: 0.00';
+        }
+
+        function updateLevelUI() {
+            const level = getCurrentLevel(totalPoints);
+            const dailyLevel = getCurrentLevel(dailyRP);
+            if (!level || !dailyLevel) return;
+
+            const levelBadge = document.getElementById('currentLevel');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const totalRP = document.getElementById('totalRP');
+            const nextLevel = document.getElementById('nextLevel');
+            const currentLevelInfo = document.getElementById('currentLevelInfo');
+            const levelProgressFill = document.getElementById('levelProgressFill');
+            const levelProgressText = document.getElementById('levelProgressText');
+            const nextLevelInfo = document.getElementById('nextLevelInfo');
+            const totalPointsInfo = document.getElementById('totalPointsInfo');
+            const rpMultiplierInfo = document.getElementById('rpMultiplier');
+            const permMultiplierInfo = document.getElementById('permMultiplierInfo');
+            const dailyMultiplierElement = document.getElementById('dailyMultiplier');
+            const dailyMultiplierValue = document.getElementById('dailyMultiplierValue');
+            const dailyRPInfo = document.getElementById('dailyRPInfo');
+            const tomorrowMoneyInfo = document.getElementById('tomorrowMoneyInfo');
+            const currentDailyLevelInfo = document.getElementById('currentDailyLevelInfo');
+            const dailyProgressFill = document.getElementById('dailyProgressFill');
+            const dailyProgressText = document.getElementById('dailyProgressText');
+            const nextDailyLevelInfo = document.getElementById('nextDailyLevelInfo');
+            const moneyDisplay = document.getElementById('moneyAmount');
+
+            levelBadge.textContent = level.name;
+            levelBadge.className = `level-badge ${level.badge}`;
+            
+            progressFill.style.width = `${level.progress}%`;
+            progressText.textContent = `${totalPoints - level.min}/${level.max - level.min} XP`;
+            
+            totalRP.textContent = totalPoints;
+            nextLevel.innerHTML = `Sonraki seviye: <span>${level.nextLevel || 'Maksimum Seviye'}</span>`;
+            
+            currentLevelInfo.textContent = level.name;
+            levelProgressFill.style.width = `${level.progress}%`;
+            levelProgressText.textContent = `${totalPoints - level.min}/${level.max - level.min} XP`;
+            nextLevelInfo.textContent = level.nextLevel || 'Maksimum Seviye';
+            totalPointsInfo.textContent = totalPoints;
+            
+            rpMultiplierInfo.textContent = rpMultiplier.toFixed(1);
+            permMultiplierInfo.textContent = rpMultiplier.toFixed(1); 
+            document.getElementById('currentMultiplier').textContent = rpMultiplier.toFixed(1);
+            if (dailyMultiplierElement) {
+                dailyMultiplierElement.textContent = dailyMultiplier.toFixed(1);
+            }
+            dailyMultiplierValue.textContent = (1.5 * dailyMultiplier).toFixed(1);
+            
+            dailyRPInfo.textContent = dailyRP;
+            tomorrowMoneyInfo.textContent = Math.floor(dailyRP / 4);
+            
+            currentDailyLevelInfo.textContent = dailyLevel.name;
+            dailyProgressFill.style.width = `${dailyLevel.progress}%`;
+            dailyProgressText.textContent = `${dailyRP - dailyLevel.min}/${dailyLevel.max - dailyLevel.min} XP`;
+            nextDailyLevelInfo.textContent = dailyLevel.nextLevel || 'Maksimum Seviye';
+
+            moneyDisplay.textContent = money;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            tabloyuGuncelle();
+            updateLevelUI();
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const pageId = item.getAttribute('data-page');
+                    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                    document.getElementById(pageId).classList.add('active');
+                });
+            });
+
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const deleteButton = document.getElementById('deleteSelected');
+
+            selectAllCheckbox.addEventListener('change', (e) => {
+                const checkboxes = document.querySelectorAll('.row-checkbox');
+                checkboxes.forEach(checkbox => checkbox.checked = e.target.checked);
+                updateDeleteButtonState();
+            });
+
+            document.querySelector('#historyTable2').addEventListener('change', (e) => {
+                if (e.target.classList.contains('row-checkbox')) {
+                    updateDeleteButtonState();
+                    const checkboxes = document.querySelectorAll('.row-checkbox');
+                    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                    selectAllCheckbox.checked = allChecked;
+                }
+            });
+
+            deleteButton.addEventListener('click', () => {
+                if (confirm('Seçili kayıtları silmek istediğinizden emin misiniz?')) {
+                    const selectedIndexes = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+                        .map(checkbox => parseInt(checkbox.dataset.index))
+                        .sort((a, b) => b - a);
+
+                    selectedIndexes.forEach(index => {
+                        calismalar.splice(index, 1);
+                    });
+
+                    localStorage.setItem('calismalar', JSON.stringify(calismalar));
+                    tabloyuGuncelle();
+                    selectAllCheckbox.checked = false;
+                }
+            });
+        });
+
+        function updateDeleteButtonState() {
+            const deleteButton = document.getElementById('deleteSelected');
+            const hasSelection = document.querySelector('.row-checkbox:checked');
+            deleteButton.disabled = !hasSelection;
+        }
+
+        let notificationEnabled = localStorage.getItem('notificationEnabled') === 'true';
+        const notificationToggle = document.getElementById('notificationToggle');
+        const notificationStatus = document.getElementById('notificationStatus');
+
+        let notificationTimes = {
+            morning: localStorage.getItem('morningTime') || '09:00',
+            afternoon: localStorage.getItem('afternoonTime') || '15:00',
+            evening: localStorage.getItem('eveningTime') || '20:00'
+        };
+
+        document.getElementById('morningTime').value = notificationTimes.morning;
+        document.getElementById('afternoonTime').value = notificationTimes.afternoon;
+        document.getElementById('eveningTime').value = notificationTimes.evening;
+
+        ['morningTime', 'afternoonTime', 'eveningTime'].forEach(timeId => {
+            document.getElementById(timeId).addEventListener('change', (e) => {
+                const time = e.target.value;
+                const period = timeId.replace('Time', '');
+                notificationTimes[period] = time;
+                localStorage.setItem(timeId, time);
+            });
+        });
+
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                updateNotificationStatus(permission);
+                
+                if (permission === 'granted') {
+                    new Notification('Çalışma Takipçisi', {
+                        body: 'Bildirimler başarıyla etkinleştirildi!',
+                        icon: '/icon.png'
+                    });
+                }
+            } catch (error) {
+                console.error('Bildirim izni alınamadı:', error);
+                updateNotificationStatus('denied');
+            }
+        }
+
+        function updateNotificationStatus(permission) {
+            switch(permission) {
+                case 'granted':
+                    notificationStatus.textContent = 'Bildirimler etkin';
+                    notificationToggle.checked = true;
+                    localStorage.setItem('notificationEnabled', 'true');
+                    break;
+                case 'denied':
+                    notificationStatus.textContent = 'Bildirimler engellendi. Tarayıcı ayarlarından izin vermeniz gerekiyor.';
+                    notificationToggle.checked = false;
+                    localStorage.setItem('notificationEnabled', 'false');
+                    break;
+                default:
+                    notificationStatus.textContent = 'Bildirim izni bekleniyor...';
+                    notificationToggle.checked = false;
+                    localStorage.setItem('notificationEnabled', 'false');
+            }
+        }
+
+        function sendNotification(title, message) {
+            if (Notification.permission === 'granted' && notificationEnabled) {
+                new Notification(title, {
+                    body: message,
+                    icon: '/icon.png'
+                });
+            }
+        }
+
+        notificationToggle.checked = notificationEnabled;
+        notificationToggle.addEventListener('change', async (e) => {
+            if (e.target.checked) {
+                await requestNotificationPermission();
+            } else {
+                notificationEnabled = false;
+                localStorage.setItem('notificationEnabled', 'false');
+                updateNotificationStatus('denied');
+            }
+            updateNotificationInputs();
+        });
+
+        if ('Notification' in window) {
+            updateNotificationStatus(Notification.permission);
+        } else {
+            notificationStatus.textContent = 'Tarayıcınız bildirimleri desteklemiyor.';
+            notificationToggle.disabled = true;
+        }
+
+        function checkNotificationTime() {
+            if (notificationEnabled) {
+                const now = new Date();
+                const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+                if (currentTime === notificationTimes.morning) {
+                    sendNotification('Günaydın!', 'Bugün için çalışma planınızı yapmayı unutmayın!');
+                } else if (currentTime === notificationTimes.afternoon) {
+                    sendNotification('Hatırlatma', 'Günün yarısı geçti! Çalışma hedeflerinize ulaştınız mı?');
+                } else if (currentTime === notificationTimes.evening) {
+                    sendNotification('İyi akşamlar!', 'Günlük çalışmalarınızı kaydetmeyi unutmayın.');
+                }
+            }
+        }
+
+        function updateNotificationInputs() {
+            const timeInputs = document.querySelectorAll('.time-selector input[type="time"]');
+            timeInputs.forEach(input => {
+                input.disabled = !notificationEnabled;
+            });
+        }
+
+        // Initial update of notification inputs
+        updateNotificationInputs();
+
+        function upgradeMultiplier() {
+            if (money >= 100) {
+                money -= 100;
+                rpMultiplier += 0.1;
+                localStorage.setItem('money', money);
+                localStorage.setItem('rpMultiplier', rpMultiplier);
+                updateLevelUI();
+            }
+        }
+
+        function upgradeDailyMultiplier() {
+            if (money >= 100) {
+                money -= 100;
+                dailyMultiplier += 0.1;
+                localStorage.setItem('money', money);
+                localStorage.setItem('dailyMultiplier', dailyMultiplier);
+                updateLevelUI();
+            }
+        }
+
+        function resetLevels() {
+            if (confirm('Tüm kademe verilerini sıfırlamak istediğinizden emin misiniz?')) {
+                totalPoints = 0;
+                dailyRP = 0;
+                rpMultiplier = 0.5; 
+                dailyMultiplier = 1.0;
+                money = 0;
+                
+                localStorage.setItem('totalPoints', '0');
+                localStorage.setItem('dailyRP', '0');
+                localStorage.setItem('rpMultiplier', '0.5');
+                localStorage.setItem('dailyMultiplier', '1.0');
+                localStorage.setItem('money', '0');
+                
+                updateLevelUI();
+            }
+        }
+
+        setInterval(checkNotificationTime, 60000); // Check every minute
+
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                calculateNet();
+                updatePointsPreview();
+            });
+        });
+    </script>
+</body>
+</html>
