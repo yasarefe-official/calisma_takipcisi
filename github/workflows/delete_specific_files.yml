@@ -1,9 +1,9 @@
-name: Belirli Dosyaları Sil
+name: Sil
 
 on:
   push:
     branches:
-      - main  # veya istediğiniz branch adı
+      - main
 
 jobs:
   delete_files:
