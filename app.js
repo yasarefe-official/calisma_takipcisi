@@ -1,57 +1,36 @@
 let currentSubject = 'turkce';
 let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
-let dailyRP = parseInt(localStorage.getItem('dailyRP')) || 0;
 let money = parseInt(localStorage.getItem('money')) || 0;
 let rpMultiplier = parseFloat(localStorage.getItem('rpMultiplier')) || 0.5;
-let dailyMultiplier = parseFloat(localStorage.getItem('dailyMultiplier')) || 1.5;
+let lastExportDate = localStorage.getItem('lastExportDate') || null;
 let kuranEnabled = localStorage.getItem('kuranEnabled') !== 'false';
 let kitapEnabled = localStorage.getItem('kitapEnabled') !== 'false';
-let lastExportDate = localStorage.getItem('lastExportDate') || null;
-let rewardEndTime = localStorage.getItem('rewardEndTime') ? parseInt(localStorage.getItem('rewardEndTime')) : null;
-let currentRewardTimer = null;
-
-// Computer mode functionality
-let isComputerMode = false;
-let loadingTimeout = null;
 
 function calculatePoints(dogru, kuranSayfa, kitapSayfa) {
     const testPoints = Math.floor(dogru * rpMultiplier);
     let kuranPoints = 0;
     let kitapPoints = 0;
-    let readingReward = 0;
+    
+    // Add money based on correct answers (quarter of correct answers, rounded down)
+    const earnedMoney = Math.floor(dogru / 4);
+    money += earnedMoney;
+    localStorage.setItem('money', money);
     
     if (kuranEnabled) {
         kuranPoints = Math.floor(kuranSayfa * 0.6);
-        readingReward += Math.floor(kuranSayfa / 4);
     }
     
     if (kitapEnabled) {
         kitapPoints = Math.floor(kitapSayfa * 0.4);
-        readingReward += Math.floor(kitapSayfa / 4);
     }
-    
-    money += readingReward;
-    localStorage.setItem('money', money);
     
     return {
         testPoints,
         kuranPoints,
         kitapPoints,
         total: testPoints + kuranPoints + kitapPoints,
-        readingReward
-    };
-}
-
-function calculateDailyPoints(dogru, kuranSayfa, kitapSayfa) {
-    const testPoints = Math.floor(dogru * 1.5 * dailyMultiplier);
-    const kuranPoints = Math.floor(kuranSayfa * 1.6);
-    const kitapPoints = Math.floor(kitapSayfa * 1.4);
-    return {
-        testPoints,
-        kuranPoints,
-        kitapPoints,
-        total: testPoints + kuranPoints + kitapPoints
+        earnedMoney
     };
 }
 
@@ -77,16 +56,11 @@ function updatePointsPreview() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
-    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
 
-    document.getElementById('testPoints').textContent = 
-        `${points.testPoints} (Günlük: ${dailyPoints.testPoints})`;
-    document.getElementById('kuranPoints').textContent = 
-        `${points.kuranPoints} (Günlük: ${dailyPoints.kuranPoints})`;
-    document.getElementById('kitapPoints').textContent = 
-        `${points.kitapPoints} (Günlük: ${dailyPoints.kitapPoints})`;
-    document.getElementById('totalPointsPreview').textContent = 
-        `${points.total} (Günlük: ${dailyPoints.total})`;
+    document.getElementById('testPoints').textContent = points.testPoints;
+    document.getElementById('kuranPoints').textContent = points.kuranPoints;
+    document.getElementById('kitapPoints').textContent = points.kitapPoints;
+    document.getElementById('totalPointsPreview').textContent = points.total;
 }
 
 function kaydet() {
@@ -95,13 +69,10 @@ function kaydet() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
-    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
     
     totalPoints += points.total;
-    dailyRP += dailyPoints.total;
     
     localStorage.setItem('totalPoints', totalPoints);
-    localStorage.setItem('dailyRP', dailyRP);
     
     updateLevelUI();
     
@@ -119,8 +90,6 @@ function kaydet() {
     localStorage.setItem('calismalar', JSON.stringify(calismalar));
     tabloyuGuncelle();
     formuTemizle();
-    
-    startRewardTimer();
 }
 
 function formuTemizle() {
@@ -132,38 +101,7 @@ function formuTemizle() {
     document.getElementById('netSonuc').textContent = 'Net: 0.00';
 }
 
-function updateMoneyDisplays() {
-    const moneyDisplays = ['moneyAmount', 'moneyAmount2'];
-    moneyDisplays.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = money;
-        }
-    });
-}
-
-function toggleComputerMode() {
-  const loadingOverlay = document.getElementById('loadingOverlay');
-  const bottomNav = document.querySelector('.bottom-nav');
-  
-  loadingOverlay.style.display = 'flex';
-  
-  if (loadingTimeout) {
-    clearTimeout(loadingTimeout);
-  }
-  
-  loadingTimeout = setTimeout(() => {
-    isComputerMode = !isComputerMode;
-    document.body.classList.toggle('computer-mode', isComputerMode);
-    bottomNav.style.display = isComputerMode ? 'none' : 'flex';
-    loadingOverlay.style.display = 'none';
-    
-    localStorage.setItem('computerMode', isComputerMode);
-  }, 3000);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    updateMoneyDisplays();
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -192,14 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLastExportDate();
     updateLevelUI();
     tabloyuGuncelle();
-    
-    isComputerMode = localStorage.getItem('computerMode') === 'true';
-    if (isComputerMode) {
-        document.body.classList.add('computer-mode');
-        document.querySelector('.bottom-nav').style.display = 'none';
-    }
-    
-    setupKeyboardShortcuts();
 });
 
 const currentLevel = document.getElementById('currentLevel');
@@ -207,21 +137,7 @@ if (currentLevel) {
     currentLevel.onclick = null; // Remove the click handler
 }
 
-function startRewardTimer() {
-    giveReward();
-}
-
-function giveReward() {
-    const dailyReward = Math.floor(dailyRP / 4);
-    money += dailyReward;
-    localStorage.setItem('money', money);
-    updateMoneyDisplays();
-    
-    alert(`Günlük ödülünüz verildi: ${dailyReward} para!`);
-}
-
 function updateLevelUI() {
-    updateMoneyDisplays();
     const LEVELS = {
         'Bronz III': { min: 0, max: 100, badge: 'bronze' },
         'Bronz II Plus': { min: 100, max: 200, badge: 'bronze' },
@@ -286,10 +202,13 @@ function updateLevelUI() {
         return null;
     }
 
+    function getAllLevels() {
+        return Object.keys(LEVELS).map(level => ({ name: level, ...LEVELS[level] }));
+    }
+
     const currentLevel = getCurrentLevel(totalPoints);
-    const dailyLevel = getCurrentLevel(dailyRP);
     
-    if (!currentLevel || !dailyLevel) return;
+    if (!currentLevel) return;
 
     const safeUpdateElement = (id, value) => {
         const element = document.getElementById(id);
@@ -327,80 +246,18 @@ function updateLevelUI() {
     safeUpdateElement('permMultiplierInfo', rpMultiplier.toFixed(1));
     safeUpdateElement('currentMultiplier', rpMultiplier.toFixed(1));
     
-    safeUpdateElement('dailyMultiplierValue', '1.5');
-    safeUpdateElement('dailyMultiplierElement', dailyMultiplier.toFixed(1));
-    
-    safeUpdateElement('dailyRPInfo', dailyRP);
-    safeUpdateElement('currentDailyLevelInfo', dailyLevel.name);
-    
-    safeUpdateProgressBar('dailyProgressFill', 'dailyProgressText', dailyLevel.progress,
-        `${dailyRP - dailyLevel.min}/${dailyLevel.max - dailyLevel.min} XP`);
-    
-    safeUpdateElement('nextDailyLevelInfo', dailyLevel.nextLevel || 'Maksimum Seviye');
-}
-
-function upgradeMultiplier() {
-    const upgradeCost = 100;
-    if (money >= upgradeCost) {
-        money -= upgradeCost;
-        rpMultiplier += 0.1;
-        localStorage.setItem('money', money);
-        localStorage.setItem('rpMultiplier', rpMultiplier);
-        updateMoneyDisplays();
-        updateLevelUI();
-        alert('Çarpan başarıyla geliştirildi!');
-    } else {
-        alert('Yeterli paranız yok!');
-    }
-}
-
-function upgradeDailyMultiplier() {
-    const upgradeCost = 100;
-    if (money >= upgradeCost) {
-        money -= upgradeCost;
-        dailyMultiplier += 0.1;
-        localStorage.setItem('money', money);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
-        updateMoneyDisplays();
-        updateLevelUI();
-        alert('Günlük çarpan başarıyla geliştirildi!');
-    } else {
-        alert('Yeterli paranız yok!');
-    }
-}
-
-function resetLevels() {
-    if (confirm('Tüm kademe verilerini sıfırlamak istediğinizden emin misiniz?')) {
-        totalPoints = 0;
-        dailyRP = 0;
+    // Render all available levels
+    const levelsListElement = document.getElementById('levelsList');
+    if (levelsListElement) {
+        levelsListElement.innerHTML = '';
+        const allLevels = getAllLevels();
         
-        localStorage.setItem('totalPoints', totalPoints);
-        localStorage.setItem('dailyRP', dailyRP);
-        
-        updateLevelUI();
-        alert('Kademe verileri başarıyla sıfırlandı!');
-    }
-}
-
-function resetUpgrades() {
-    if (confirm('Tüm geliştirme verilerini sıfırlamak istediğinizden emin misiniz?')) {
-        rpMultiplier = 0.5;
-        dailyMultiplier = 1.5;
-        
-        localStorage.setItem('rpMultiplier', rpMultiplier);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
-        
-        updateLevelUI();
-        alert('Geliştirme verileri başarıyla sıfırlandı!');
-    }
-}
-
-function resetMoney() {
-    if (confirm('Para verilerini sıfırlamak istediğinizden emin misiniz?')) {
-        money = 0;
-        localStorage.setItem('money', money);
-        updateMoneyDisplays();
-        alert('Para verileri başarıyla sıfırlandı!');
+        allLevels.forEach(level => {
+            const levelItem = document.createElement('div');
+            levelItem.className = `level-item ${level.badge}`;
+            levelItem.textContent = level.name;
+            levelsListElement.appendChild(levelItem);
+        });
     }
 }
 
@@ -427,91 +284,35 @@ function tabloyuGuncelle() {
 
 function updateLastExportDate() {
     const lastExportElement = document.getElementById('lastExportDate');
-    if (lastExportDate) {
+    if (lastExportElement && lastExportDate) {
         const date = new Date(lastExportDate);
         lastExportElement.textContent = date.toLocaleDateString('tr-TR');
     }
 }
 
-window.upgradeDailyMultiplier = function() {
+function upgradeMultiplier() {
     const upgradeCost = 100;
     if (money >= upgradeCost) {
         money -= upgradeCost;
-        dailyMultiplier += 0.1;
+        rpMultiplier += 0.1;
         localStorage.setItem('money', money);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
-        updateMoneyDisplays();
+        localStorage.setItem('rpMultiplier', rpMultiplier);
         updateLevelUI();
-        alert('Günlük çarpan başarıyla geliştirildi!');
+        alert('Çarpan başarıyla geliştirildi!');
     } else {
         alert('Yeterli paranız yok!');
     }
-};
+}
 
-function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (e) => {
-    if (isComputerMode) {
-      // Show shortcuts modal
-      if (e.ctrlKey && e.key === 'k') {
-        e.preventDefault();
-        showShortcutsModal();
-      }
-      
-      // Page navigation shortcuts
-      if (e.ctrlKey) {
-        switch(e.key) {
-          case '1':
-            e.preventDefault();
-            switchPage('dataPage');
-            break;
-          case '2':
-            e.preventDefault(); 
-            switchPage('tablePage');
-            break;
-          case '3':
-            e.preventDefault();
-            switchPage('levelsPage');
-            break;
-          case '4':
-            e.preventDefault();
-            switchPage('upgradePage');
-            break;
-          case 'm':
-            e.preventDefault();
-            toggleComputerMode();
-            break;
-        }
-      }
+function resetLevels() {
+    if (confirm('Tüm kademe verilerini sıfırlamak istediğinizden emin misiniz?')) {
+        totalPoints = 0;
+        rpMultiplier = 0.5;
+        
+        localStorage.setItem('totalPoints', totalPoints);
+        localStorage.setItem('rpMultiplier', rpMultiplier);
+        
+        updateLevelUI();
+        alert('Kademe verileri başarıyla sıfırlandı!');
     }
-  });
-}
-
-function showShortcutsModal() {
-  const modal = document.getElementById('shortcutsModal');
-  modal.style.display = 'block';
-}
-
-function switchPage(pageId) {
-  document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-}
-
-function toggleComputerMode() {
-  const loadingOverlay = document.getElementById('loadingOverlay');
-  const bottomNav = document.querySelector('.bottom-nav');
-  
-  loadingOverlay.style.display = 'flex';
-  
-  if (loadingTimeout) {
-    clearTimeout(loadingTimeout);
-  }
-  
-  loadingTimeout = setTimeout(() => {
-    isComputerMode = !isComputerMode;
-    document.body.classList.toggle('computer-mode', isComputerMode);
-    bottomNav.style.display = isComputerMode ? 'none' : 'flex';
-    loadingOverlay.style.display = 'none';
-    
-    localStorage.setItem('computerMode', isComputerMode);
-  }, 3000);
 }

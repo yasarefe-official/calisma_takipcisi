@@ -105,9 +105,6 @@
   color: #FFD700;
   font-weight: 500;
   font-size: 16px;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 8px;
 }
 
 .money-display i {
@@ -139,9 +136,7 @@
 }
 
 .level-badge.daily {
-  top: 60px;
-  font-size: 12px;
-  padding: 6px 12px;
+  display: none;
 }
 
 #currentLevel {
@@ -683,14 +678,9 @@
     display: none;
 }
 
-/* Add streak card styles for levels page */
+/* Remove streak card styles */
 .streak-card {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    text-align: center;
+    display: none;
 }
 
 .streak-display {
@@ -698,202 +688,69 @@
 }
 
 .streak-display-large {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 24px;
-    cursor: pointer;  
-}
-
-.streak-count-large {
-    color: var(--text-color);
-    font-weight: 500;
-    font-size: 24px;
-}
-
-/* Remove reward timer styles */
-#rewardTimeDisplay {
     display: none;
 }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    flex: 1;
+.streak-count-large {
+    display: none;
+}
+
+/* Modal styles removed */
+.modal {
+    display: none;
+}
+
+.modal-content {
+    display: none;
+}
+
+.close-modal {
+    display: none;
+}
+
+/* Add styles for the levels list display */
+.all-levels-section {
+    margin: 15px 0;
+    padding: 15px;
+    background: var(--card-background);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.all-levels-section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.levels-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.level-item {
+    padding: 10px;
     text-align: center;
-    padding: 8px 4px; 
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
-.nav-item i {
-    font-size: 22px; 
-    margin-bottom: 2px;
-}
-
-#loadingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid var(--background-color);
-  border-top: 5px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.computer-mode {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 40px;
-}
-
-.computer-mode .container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.computer-mode .input-group {
-  margin: 0;
-}
-
-.computer-mode .bottom-nav {
-  position: static;
-  width: 100%;
-  max-width: 1200px;
-  margin: 20px auto 0;
-  border-radius: 12px;
-}
-
-.computer-mode .page {
-  margin-bottom: 0;
-}
-
-.computer-mode .header {
-  position: relative;
-  padding: 30px;
-}
-
-.computer-mode .subject-tabs {
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.computer-mode .points-preview {
-  margin: 0;
-}
-
-.computer-mode .table-container {
-  margin: 0;
-  max-height: calc(100vh - 300px);
-  overflow-y: auto;
-}
-
-.computer-mode .upgrade-container {
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-}
-
-.computer-mode .nav-item {
-  padding: 15px;
-  flex-direction: row;
-  justify-content: center;
-  gap: 10px;
-}
-
-.computer-mode .nav-item i {
-  margin: 0;
-}
-
-.keyboard-shortcut {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--card-background);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  z-index: 1000;
-}
-
-#shortcutsModal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 1100;
-}
-
-.shortcuts-content {
-  position: relative;
-  background: var(--card-background);
-  margin: 15% auto;
-  padding: 30px;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-.shortcut-list {
-  display: grid;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.shortcut-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: var(--background-color);
-  border-radius: 8px;
-}
-
-.shortcut-keys {
-  display: flex;
-  gap: 5px;
-}
-
-.key {
-  padding: 4px 8px;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.computer-mode .bottom-nav {
-  display: none;
-}
-
-.keyboard-shortcut {
-  display: none;
+@media (max-width: 480px) {
+    .levels-list {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+    
+    .level-item {
+        font-size: 12px;
+        padding: 8px 5px;
+    }
 }
 
 @media (max-width: 768px) {
