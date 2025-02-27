@@ -1,48 +1,25 @@
 let currentSubject = 'turkce';
 let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
-let dailyRP = parseInt(localStorage.getItem('dailyRP')) || 0;
-let money = parseInt(localStorage.getItem('money')) || 0;
-let rpMultiplier = parseFloat(localStorage.getItem('rpMultiplier')) || 0.5;
-let dailyMultiplier = parseFloat(localStorage.getItem('dailyMultiplier')) || 1.5;
+let rpMultiplier = 0.5; 
 let kuranEnabled = localStorage.getItem('kuranEnabled') !== 'false';
 let kitapEnabled = localStorage.getItem('kitapEnabled') !== 'false';
 let lastExportDate = localStorage.getItem('lastExportDate') || null;
-let rewardEndTime = localStorage.getItem('rewardEndTime') ? parseInt(localStorage.getItem('rewardEndTime')) : null;
-let currentRewardTimer = null;
+let appVersion = 'v10';
 
 function calculatePoints(dogru, kuranSayfa, kitapSayfa) {
     const testPoints = Math.floor(dogru * rpMultiplier);
     let kuranPoints = 0;
     let kitapPoints = 0;
-    let readingReward = 0;
     
     if (kuranEnabled) {
         kuranPoints = Math.floor(kuranSayfa * 0.6);
-        readingReward += Math.floor(kuranSayfa / 4);
     }
     
     if (kitapEnabled) {
         kitapPoints = Math.floor(kitapSayfa * 0.4);
-        readingReward += Math.floor(kitapSayfa / 4);
     }
     
-    money += readingReward;
-    localStorage.setItem('money', money);
-    
-    return {
-        testPoints,
-        kuranPoints,
-        kitapPoints,
-        total: testPoints + kuranPoints + kitapPoints,
-        readingReward
-    };
-}
-
-function calculateDailyPoints(dogru, kuranSayfa, kitapSayfa) {
-    const testPoints = Math.floor(dogru * 1.5 * dailyMultiplier);
-    const kuranPoints = Math.floor(kuranSayfa * 1.6);
-    const kitapPoints = Math.floor(kitapSayfa * 1.4);
     return {
         testPoints,
         kuranPoints,
@@ -56,7 +33,16 @@ function changeSubject(subject) {
     document.querySelectorAll('.subject-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    event.target.classList.add('active');
+    
+    const buttonElement = document.querySelector(`.subject-tab[onclick*="${subject}"]`);
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+        
+        buttonElement.style.animation = 'none';
+        setTimeout(() => {
+            buttonElement.style.animation = 'tabActivate 0.5s ease forwards';
+        }, 10);
+    }
 }
 
 function calculateNet() {
@@ -73,16 +59,11 @@ function updatePointsPreview() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
-    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
 
-    document.getElementById('testPoints').textContent = 
-        `${points.testPoints} (Günlük: ${dailyPoints.testPoints})`;
-    document.getElementById('kuranPoints').textContent = 
-        `${points.kuranPoints} (Günlük: ${dailyPoints.kuranPoints})`;
-    document.getElementById('kitapPoints').textContent = 
-        `${points.kitapPoints} (Günlük: ${dailyPoints.kitapPoints})`;
-    document.getElementById('totalPointsPreview').textContent = 
-        `${points.total} (Günlük: ${dailyPoints.total})`;
+    document.getElementById('testPoints').textContent = points.testPoints;
+    document.getElementById('kuranPoints').textContent = points.kuranPoints;
+    document.getElementById('kitapPoints').textContent = points.kitapPoints;
+    document.getElementById('totalPointsPreview').textContent = points.total;
 }
 
 function kaydet() {
@@ -91,13 +72,10 @@ function kaydet() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
-    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
     
     totalPoints += points.total;
-    dailyRP += dailyPoints.total;
     
     localStorage.setItem('totalPoints', totalPoints);
-    localStorage.setItem('dailyRP', dailyRP);
     
     updateLevelUI();
     
@@ -114,9 +92,15 @@ function kaydet() {
     calismalar.push(yeniCalisma);
     localStorage.setItem('calismalar', JSON.stringify(calismalar));
     tabloyuGuncelle();
-    formuTemizle();
     
-    startRewardTimer();
+    const saveButton = document.querySelector('.button-group button');
+    saveButton.classList.add('save-success');
+    saveButton.textContent = 'Kaydedildi!';
+    setTimeout(() => {
+        saveButton.classList.remove('save-success');
+        saveButton.textContent = 'Kaydet';
+        formuTemizle();
+    }, 1500);
 }
 
 function formuTemizle() {
@@ -129,7 +113,7 @@ function formuTemizle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item').forEach((item, index) => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -137,14 +121,33 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.add('active');
             
             const pageId = item.getAttribute('data-page');
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
             
-            // Update UI based on active page
-            if (pageId === 'levelsPage') {
-                updateLevelUI();
+            const currentPage = document.querySelector('.page.active');
+            if (currentPage) {
+                currentPage.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => {
+                    currentPage.classList.remove('active');
+                    currentPage.style.animation = '';
+                    
+                    const nextPage = document.getElementById(pageId);
+                    nextPage.classList.add('active');
+                    nextPage.style.animation = 'fadeIn 0.4s forwards';
+                    
+                    if (pageId === 'levelsPage') {
+                        updateLevelUI();
+                        renderAllLevels();
+                    }
+                    
+                    if (pageId === 'versionPage') {
+                        displayVersionNotes();
+                    }
+                }, 300);
             }
         });
+        
+        setTimeout(() => {
+            item.style.animation = 'fadeIn 0.4s forwards';
+        }, 100 + (index * 50));
     });
 
     document.querySelectorAll('input[type="number"]').forEach(input => {
@@ -157,28 +160,32 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLastExportDate();
     updateLevelUI();
     tabloyuGuncelle();
+    
+    renderAllLevels();
 });
 
-const currentLevel = document.getElementById('currentLevel');
-if (currentLevel) {
-    currentLevel.onclick = null; // Remove the click handler
-}
-
-function startRewardTimer() {
-    giveReward();
-}
-
-function giveReward() {
-    const dailyReward = Math.floor(dailyRP / 4);
-    money += dailyReward;
-    localStorage.setItem('money', money);
+function displayVersionNotes() {
+    const versionNotesContainer = document.getElementById('versionNotesContainer');
+    if (!versionNotesContainer) return;
     
-    const levelElements = document.getElementById('currentLevel');
-    if (levelElements) {
-        updateLevelUI();
-    }
+    versionNotesContainer.innerHTML = '';
     
-    alert(`Günlük ödülünüz verildi: ${dailyReward} para!`);
+    const currentVersionCard = document.createElement('div');
+    currentVersionCard.className = 'version-card';
+    
+    currentVersionCard.innerHTML = `
+        <h3>Sürüm v10</h3>
+        <div class="version-date">Yayınlanma: ${new Date().toLocaleDateString('tr-TR')}</div>
+        <ul class="version-features">
+            <li>Para sistemi kaldırıldı</li>
+            <li>Modern animasyonlar eklendi</li>
+            <li>Kademeler sayfası güncellendi - tüm kademeler gösteriliyor</li>
+            <li>Arayüz iyileştirmeleri yapıldı</li>
+            <li>Performans optimizasyonu</li>
+        </ul>
+    `;
+    
+    versionNotesContainer.appendChild(currentVersionCard);
 }
 
 function updateLevelUI() {
@@ -247,9 +254,8 @@ function updateLevelUI() {
     }
 
     const currentLevel = getCurrentLevel(totalPoints);
-    const dailyLevel = getCurrentLevel(dailyRP);
     
-    if (!currentLevel || !dailyLevel) return;
+    if (!currentLevel) return;
 
     const safeUpdateElement = (id, value) => {
         const element = document.getElementById(id);
@@ -262,13 +268,20 @@ function updateLevelUI() {
         if (fill) fill.style.width = `${progress}%`;
         if (textElement) textElement.textContent = text;
     };
-
-    safeUpdateElement('moneyAmount', money);
     
     const levelBadge = document.getElementById('currentLevel');
     if (levelBadge) {
         levelBadge.textContent = currentLevel.name;
         levelBadge.className = `level-badge ${currentLevel.badge}`;
+        
+        levelBadge.animate([
+            { transform: 'scale(0.9)' },
+            { transform: 'scale(1.1)' },
+            { transform: 'scale(1)' }
+        ], {
+            duration: 600,
+            easing: 'cubic-bezier(0.19, 1, 0.22, 1)'
+        });
     }
 
     safeUpdateProgressBar('progressFill', 'progressText', currentLevel.progress, 
@@ -276,26 +289,76 @@ function updateLevelUI() {
 
     safeUpdateElement('totalRP', totalPoints);
     safeUpdateElement('nextLevel', `Sonraki seviye: ${currentLevel.nextLevel || 'Maksimum Seviye'}`);
-    
+
     safeUpdateElement('currentLevelInfo', currentLevel.name);
     safeUpdateProgressBar('levelProgressFill', 'levelProgressText', currentLevel.progress,
         `${totalPoints - currentLevel.min}/${currentLevel.max - currentLevel.min} XP`);
     safeUpdateElement('nextLevelInfo', currentLevel.nextLevel || 'Maksimum Seviye');
     safeUpdateElement('totalPointsInfo', totalPoints);
+}
+
+function renderAllLevels() {
+    const levelsContainer = document.getElementById('allLevelsContainer');
+    if (!levelsContainer) return;
     
-    safeUpdateElement('rpMultiplierInfo', rpMultiplier.toFixed(1));
-    safeUpdateElement('permMultiplierInfo', rpMultiplier.toFixed(1));
-    safeUpdateElement('currentMultiplier', rpMultiplier.toFixed(1));
-    safeUpdateElement('dailyMultiplierValue', (1.5 * dailyMultiplier).toFixed(1));
-    safeUpdateElement('dailyMultiplierElement', dailyMultiplier.toFixed(1));
+    levelsContainer.innerHTML = '';
     
-    safeUpdateElement('dailyRPInfo', dailyRP);
-    safeUpdateElement('currentDailyLevelInfo', dailyLevel.name);
-    
-    safeUpdateProgressBar('dailyProgressFill', 'dailyProgressText', dailyLevel.progress,
-        `${dailyRP - dailyLevel.min}/${dailyLevel.max - dailyLevel.min} XP`);
-    
-    safeUpdateElement('nextDailyLevelInfo', dailyLevel.nextLevel || 'Maksimum Seviye');
+    const LEVELS = {
+        'Bronz III': { min: 0, max: 100, badge: 'bronze' },
+        'Bronz II Plus': { min: 100, max: 200, badge: 'bronze' },
+        'Bronz II': { min: 200, max: 300, badge: 'bronze' },
+        'Bronz II Elite': { min: 300, max: 400, badge: 'bronze' },
+        'Bronz I Plus': { min: 400, max: 500, badge: 'bronze' },
+        'Bronz I': { min: 500, max: 600, badge: 'bronze' },
+        'Bronz I Elite': { min: 600, max: 700, badge: 'bronze' },
+        'Gümüş III Plus': { min: 700, max: 800, badge: 'silver' },
+        'Gümüş III': { min: 800, max: 900, badge: 'silver' },
+        'Gümüş III Elite': { min: 900, max: 1000, badge: 'silver' },
+        'Gümüş II Plus': { min: 1000, max: 1100, badge: 'silver' },
+        'Gümüş II': { min: 1100, max: 1200, badge: 'silver' },
+        'Gümüş II Elite': { min: 1200, max: 1300, badge: 'silver' },
+        'Gümüş I Plus': { min: 1300, max: 1400, badge: 'silver' },
+        'Gümüş I': { min: 1400, max: 1500, badge: 'silver' },
+        'Gümüş I Elite': { min: 1500, max: 1600, badge: 'silver' },
+        'Altın III Plus': { min: 1600, max: 1700, badge: 'gold' },
+        'Altın III': { min: 1700, max: 1800, badge: 'gold' },
+        'Altın III Elite': { min: 1800, max: 1900, badge: 'gold' },
+        'Altın II Plus': { min: 1900, max: 2000, badge: 'gold' },
+        'Altın II': { min: 2000, max: 2100, badge: 'gold' },
+        'Altın II Elite': { min: 2100, max: 2200, badge: 'gold' },
+        'Altın I Plus': { min: 2200, max: 2300, badge: 'gold' },
+        'Altın I': { min: 2300, max: 2400, badge: 'gold' },
+        'Altın I Elite': { min: 2400, max: 2500, badge: 'gold' },
+        'Platin III Plus': { min: 2500, max: 2600, badge: 'platinum' },
+        'Platin III': { min: 2600, max: 2700, badge: 'platinum' },
+        'Platin III Elite': { min: 2700, max: 2800, badge: 'platinum' },
+        'Platin II Plus': { min: 2800, max: 2900, badge: 'platinum' },
+        'Platin II': { min: 2900, max: 3000, badge: 'platinum' },
+        'Platin II Elite': { min: 3000, max: 3100, badge: 'platinum' },
+        'Platin I': { min: 3100, max: 3200, badge: 'platinum' },
+        'Elmas III': { min: 3200, max: 3300, badge: 'diamond' },
+        'Elmas II': { min: 3300, max: 3400, badge: 'diamond' },
+        'Elmas I': { min: 3400, max: 3500, badge: 'diamond' },
+        'Usta III': { min: 3500, max: 3600, badge: 'master' },
+        'Usta II': { min: 3600, max: 3700, badge: 'master' },
+        'Usta I': { min: 3700, max: 3800, badge: 'master' },
+        'Büyük Usta III': { min: 3800, max: 3900, badge: 'grandmaster' },
+        'Büyük Usta II': { min: 3900, max: 4000, badge: 'grandmaster' },
+        'Büyük Usta I': { min: 4000, max: 4100, badge: 'grandmaster' },
+        'Efsanevi III': { min: 4100, max: 4200, badge: 'grandmaster' },
+        'Efsanevi II': { min: 4200, max: 4300, badge: 'grandmaster' },
+        'Efsanevi I': { min: 4300, max: Infinity, badge: 'grandmaster' }
+    };
+
+    Object.entries(LEVELS).forEach(([levelName, data], index) => {
+        const levelItem = document.createElement('div');
+        levelItem.className = `level-item ${data.badge}`;
+        levelItem.textContent = levelName;
+        
+        levelItem.style.animationDelay = `${index * 30}ms`;
+        
+        levelsContainer.appendChild(levelItem);
+    });
 }
 
 function tabloyuGuncelle() {
@@ -327,61 +390,19 @@ function updateLastExportDate() {
     }
 }
 
-function upgradeMultiplier() {
-    const upgradeCost = 100;
-    if (money >= upgradeCost) {
-        money -= upgradeCost;
-        rpMultiplier += 0.1;
-        localStorage.setItem('money', money);
-        localStorage.setItem('rpMultiplier', rpMultiplier);
-        updateLevelUI();
-        alert('Çarpan başarıyla geliştirildi!');
-    } else {
-        alert('Yeterli paranız yok!');
-    }
-}
-
-function upgradeDailyMultiplier() {
-    const upgradeCost = 100;
-    if (money >= upgradeCost) {
-        money -= upgradeCost;
-        dailyMultiplier += 0.1;
-        localStorage.setItem('money', money);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
-        updateLevelUI();
-        alert('Günlük çarpan başarıyla geliştirildi!');
-    } else {
-        alert('Yeterli paranız yok!');
-    }
-}
-
 function resetLevels() {
     if (confirm('Tüm kademe verilerini sıfırlamak istediğinizden emin misiniz?')) {
         totalPoints = 0;
-        dailyRP = 0;
-        rpMultiplier = 0.5;
-        dailyMultiplier = 1.5;
         
         localStorage.setItem('totalPoints', totalPoints);
-        localStorage.setItem('dailyRP', dailyRP);
-        localStorage.setItem('rpMultiplier', rpMultiplier);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
         
         updateLevelUI();
-        alert('Kademe verileri başarıyla sıfırlandı!');
+        
+        const resetBtn = document.querySelector('.reset-btn');
+        resetBtn.classList.add('reset-active');
+        setTimeout(() => {
+            resetBtn.classList.remove('reset-active');
+            alert('Kademe verileri başarıyla sıfırlandı!');
+        }, 1000);
     }
 }
-
-window.upgradeDailyMultiplier = function() {
-    const upgradeCost = 100;
-    if (money >= upgradeCost) {
-        money -= upgradeCost;
-        dailyMultiplier += 0.1;
-        localStorage.setItem('money', money);
-        localStorage.setItem('dailyMultiplier', dailyMultiplier);
-        updateLevelUI();
-        alert('Günlük çarpan başarıyla geliştirildi!');
-    } else {
-        alert('Yeterli paranız yok!');
-    }
-};

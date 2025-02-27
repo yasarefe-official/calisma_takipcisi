@@ -276,43 +276,79 @@
             font-weight: bold;
         }
         
-        /* Streak Details Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
+        /* Version page styles */
+        .version-page {
             padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .close-modal {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-modal:hover,
-        .close-modal:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
         }
         
+        .version-card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: cardPop 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            animation-fill-mode: both;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .version-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .version-date {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .version-features {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .version-features li {
+            margin-bottom: 10px;
+            color: var(--text-color);
+            position: relative;
+        }
+        
+        .version-features li::before {
+            content: '•';
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+        }
+
+        /* Level badge colors */
+        .bronze { background: #CD7F32; }
+        .silver { background: #C0C0C0; }
+        .gold { background: #FFD700; }
+        .platinum { background: #E5E4E2; }
+        .diamond { background: #B9F2FF; }
+        .master { background: #FF4654; }
+        .grandmaster { background: #FFD700; background-image: linear-gradient(45deg, #FFD700, #FFA500); }
+        .mystic { background: #8B9467; }
+        .divine { background: #6633CC; }
+        .cosmic { background: #33CCFF; }
+        .infinite { background: #CC33CC; }
+
         /* Update table styles for better mobile responsiveness */
         #historyTable2 {
             width: 100%;
@@ -375,19 +411,6 @@
             color: var(--text-secondary);
             opacity: 0.8;
         }
-
-        /* Level badge colors */
-        .bronze { background: #CD7F32; }
-        .silver { background: #C0C0C0; }
-        .gold { background: #FFD700; }
-        .platinum { background: #E5E4E2; }
-        .diamond { background: #B9F2FF; }
-        .master { background: #FF4654; }
-        .grandmaster { background: #FFD700; background-image: linear-gradient(45deg, #FFD700, #FFA500); }
-        .mystic { background: #8B9467; }
-        .divine { background: #6633CC; }
-        .cosmic { background: #33CCFF; }
-        .infinite { background: #CC33CC; }
 
         .page {
             display: none;
@@ -592,21 +615,46 @@
         .delete-all {
             background: var(--danger-color);
         }
+        
+        /* Additional modern animations */
+        @keyframes tabActivate {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(10px); }
+        }
+        
+        .save-success {
+            background: var(--success-color) !important;
+            transform: scale(1.05) !important;
+        }
+        
+        .reset-active {
+            background: var(--danger-color) !important;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
     </style>
 </head>
 <body>
     <div id="mainContent">
-        <span class="version-text">v9</span>
+        <span class="version-text">v10</span>
         
         <div id="dataPage" class="page active">
             <div class="container">
                 <div class="header">
                     <div class="title-container">
                         <h1>Çalışma Takipçisi</h1>
-                        <div class="money-display">
-                            <i class="material-icons">monetization_on</i>
-                            <span id="moneyAmount">0</span>
-                        </div>
                     </div>
                     <div id="currentLevel" class="level-badge bronze">
                         <span class="level-name">Bronz III</span>
@@ -706,13 +754,6 @@
                     <h1>Kademe Bilgileri</h1>
                 </div>
                 
-                <div class="streak-card">
-                    <div class="streak-display-large">
-                        <i class="material-icons">local_fire_department</i>
-                        <span class="streak-count-large" id="streakCountLarge">0 gün</span>
-                    </div>
-                </div>
-                
                 <div class="levels-page">
                     <div class="level-card">
                         <h2>Kalıcı Kademe</h2>
@@ -741,92 +782,32 @@
                     </div>
                     
                     <div class="level-card">
-                        <h2>Günlük Kademe</h2>
-                        <div class="level-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Mevcut Kademe:</span>
-                                <span class="stat-value" id="currentDailyLevelInfo">-</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">İlerleme:</span>
-                                <div class="progress-bar">
-                                    <div id="dailyProgressFill" class="progress-fill"></div>
-                                    <div id="dailyProgressText" class="progress-text">0/100 XP</div>
-                                </div>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Sonraki Kademe:</span>
-                                <span class="stat-value" id="nextDailyLevelInfo">-</span>
-                            </div>
-                        </div>
-                        
-                        <div class="level-info">
-                            <p>Her doğru başına <strong><span id="dailyMultiplierValue">1.5</span>x</strong> puan kazanırsınız.</p>
-                            <p>Günlük Puan: <strong><span id="dailyRPInfo">0</span></strong></p>
+                        <h2>Tüm Kademeler</h2>
+                        <div class="level-list" id="allLevelsContainer">
+                            <!-- Levels will be populated by JS -->
                         </div>
                     </div>
                     
-                    <!-- Rest of the level-card content remains the same -->
-                </div>
-                <div class="level-card">
-                    <button onclick="resetLevels()" class="delete-btn reset-btn">
-                        <i class="material-icons">refresh</i>
-                        <span>Kademe Verilerini Sıfırla</span>
-                    </button>
+                    <div class="level-card">
+                        <button onclick="resetLevels()" class="delete-btn reset-btn">
+                            <i class="material-icons">refresh</i>
+                            <span>Kademe Verilerini Sıfırla</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="upgradePage" class="page">
+        <div id="versionPage" class="page">
             <div class="container">
                 <div class="header">
-                    <h1>Geliştirmeler</h1>
+                    <h1>Sürüm Notları</h1>
                 </div>
                 
-                <div class="upgrade-container">
-                    <div class="upgrade-card">
-                        <div class="upgrade-header">
-                            <h2>Kalıcı Çarpan</h2>
-                            <div class="current-value">
-                                Mevcut: <span id="currentMultiplier">0.5</span>x
-                            </div>
-                        </div>
-                        <div class="upgrade-content">
-                            <p>Her doğru cevap için kazandığınız puanı artırır.</p>
-                            <div class="upgrade-price">
-                                <i class="material-icons">monetization_on</i>
-                                <span>100</span>
-                            </div>
-                            <button onclick="upgradeMultiplier()" class="upgrade-action-btn">
-                                Geliştir
-                            </button>
-                        </div>
+                <div class="version-page">
+                    <div id="versionNotesContainer">
+                        <!-- Version notes will be populated by JS -->
                     </div>
-
-                    <div class="upgrade-card">
-                        <div class="upgrade-header">
-                            <h2>Günlük RP Çarpanı</h2>
-                            <div class="current-value">
-                                Mevcut: <span id="dailyMultiplierElement">1.5</span>x
-                            </div>
-                        </div>
-                        <div class="upgrade-content">
-                            <p>Günlük puanlarınızı artırır.</p>
-                            <div class="upgrade-price">
-                                <i class="material-icons">monetization_on</i>
-                                <span>100</span>
-                            </div>
-                            <button onclick="upgradeDailyMultiplier()" class="upgrade-action-btn">
-                                Geliştir
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="upgrade-card" style="margin-top: 20px;">
-                    <button onclick="resetLevels()" class="delete-btn reset-btn">
-                        <i class="material-icons">refresh</i>
-                        <span>Geliştirmeleri Sıfırla</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -880,30 +861,19 @@
                 <i class="material-icons">military_tech</i>
                 <span>Kademeler</span>
             </a>
-            <a href="#" class="nav-item" data-page="upgradePage">
-                <i class="material-icons">upgrade</i>
-                <span>Geliştirmeler</span>
+            <a href="#" class="nav-item" data-page="versionPage">
+                <i class="material-icons">new_releases</i>
+                <span>Sürüm Notları</span>
             </a>
         </nav>
         
-        <!-- Streak Details Modal -->
-        <div id="streakModal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Seri Detayları</h2>
-                <div class="streak-details">
-                    <p>Mevcut Seri: <span id="currentStreak">0</span> gün</p>
-                    <p>En Yüksek Seri: <span id="highestStreak">0</span> gün</p>
-                    <p>Toplam Kazanılan Para: <span id="totalStreakMoney">0</span></p>
-                </div>
-            </div>
-        </div>
+        <div class="author-credit">@yasar</div>
+        
+        <script src="/app.js"></script>
+        <script src="/themes.js"></script>
+        <script src="/streak.js"></script>
+        <script src="/levels.js"></script>
+        <script src="/table.js"></script>
     </div>
-    
-    <script src="/app.js"></script>
-    <script src="/themes.js"></script>
-    <script src="/streak.js"></script>
-    <script src="/levels.js"></script>
-    <script src="/table.js"></script>
 </body>
 </html>

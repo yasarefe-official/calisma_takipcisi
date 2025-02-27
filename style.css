@@ -1,3 +1,217 @@
+/* Enhanced animations */
+.container {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    animation: slideUp 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    padding-bottom: 90px;
+    margin-bottom: 0;
+    backdrop-filter: blur(5px);
+    transition: all 0.4s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.page {
+    display: none;
+    animation: fadeIn 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modern button animations */
+button {
+    flex: 1;
+    min-width: 120px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: all 0.5s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+}
+
+button:hover:before {
+    left: 100%;
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+/* Input field animations */
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+    transform: translateY(-2px);
+}
+
+/* Enhanced table animations */
+#historyTable2 tbody tr {
+    transition: all 0.3s ease;
+}
+
+#historyTable2 tbody tr:hover {
+    background: var(--background-color);
+    transform: translateX(5px);
+}
+
+/* Level badge animations */
+.level-badge {
+    padding: 12px 20px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: absolute;
+    right: 20px;
+    --glow-color: rgba(255, 215, 0, 0.5);
+    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    background-image: linear-gradient(135deg, var(--badge-start), var(--badge-end));
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+}
+
+/* Animation for level display */
+.level-card {
+    animation: cardPop 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all 0.4s ease;
+}
+
+.level-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+@keyframes cardPop {
+    0% { transform: scale(0.95); opacity: 0; }
+    70% { transform: scale(1.02); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Animate level list */
+.level-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    animation: gridFadeIn 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes gridFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.level-item {
+    animation: levelPop 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    animation-fill-mode: both;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes levelPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Animation for navbar items */
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    flex: 1;
+    text-align: center;
+    padding: 10px 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--primary-color);
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 3px;
+}
+
+.nav-item.active:after {
+    width: 30px;
+    left: calc(50% - 15px);
+}
+
+.nav-item i {
+    font-size: 24px;
+    margin-bottom: 4px;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.nav-item:hover i {
+    transform: translateY(-3px);
+}
+
+.nav-item.active i {
+    color: var(--primary-color);
+}
+
+/* Remove money display */
+.money-display {
+    display: none;
+}
+
 /* Update table styles for better mobile experience */
 .table-controls {
   display: flex;
@@ -98,19 +312,6 @@
   margin: 0;
 }
 
-.money-display {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #FFD700;
-  font-weight: 500;
-  font-size: 16px;
-}
-
-.money-display i {
-  font-size: 18px;
-}
-
 .level-badge {
   padding: 12px 20px;
   border-radius: 25px;
@@ -136,6 +337,7 @@
 }
 
 .level-badge.daily {
+  display: none;
   top: 60px;
   font-size: 12px;
   padding: 6px 12px;
@@ -179,6 +381,8 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
   position: relative;
   overflow: hidden;
+  animation: cardPop 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all 0.4s ease;
 }
 
 .level-card::before {
@@ -251,6 +455,12 @@
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 15px;
   padding: 15px;
+  animation: gridFadeIn 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes gridFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .level-item {
@@ -268,6 +478,14 @@
     border: 2px solid rgba(255,255,255,0.1);
     backdrop-filter: blur(5px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: levelPop 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    animation-fill-mode: both;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes levelPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 .level-item:hover {
@@ -546,69 +764,27 @@
 }
 
 .upgrade-container {
-    padding: 20px;
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: none;
 }
 
 .upgrade-card {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
 }
 
 .upgrade-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.upgrade-header h2 {
-    font-size: 18px;
-    margin: 0;
-}
-
-.current-value {
-    font-size: 16px;
-    color: var(--primary-color);
-    font-weight: 500;
+    display: none;
 }
 
 .upgrade-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.upgrade-content p {
-    color: var(--text-secondary);
-    margin: 0;
+    display: none;
 }
 
 .upgrade-price {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--warning-color);
-    font-weight: 500;
+    display: none;
 }
 
 .upgrade-action-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.upgrade-action-btn:hover {
-    transform: translateY(-2px);
+    display: none;
 }
 
 .back-btn {
@@ -680,32 +856,37 @@
     display: none;
 }
 
-/* Add streak card styles for levels page */
-.streak-card {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    text-align: center;
+/* Version modal styles */
+.version-details {
+    margin-top: 20px;
 }
 
-.streak-display {
-    display: none;  
+.version-details h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.version-details ul {
+    padding-left: 20px;
+}
+
+.version-details li {
+    margin-bottom: 8px;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+/* Remove streak-related styles */
+.streak-card {
+    display: none;
 }
 
 .streak-display-large {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 24px;
-    cursor: pointer;  
+    display: none;
 }
 
-.streak-count-large {
-    color: var(--text-color);
-    font-weight: 500;
-    font-size: 24px;
+#streakCountLarge {
+    display: none;
 }
 
 /* Remove reward timer styles */
@@ -713,22 +894,89 @@
     display: none;
 }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    flex: 1;
-    text-align: center;
-    padding: 8px 4px; 
+/* Add version notes page styles */
+.version-card {
+    background: var(--card-background);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    animation: cardPop 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.nav-item i {
-    font-size: 22px; 
-    margin-bottom: 2px;
+.version-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.version-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 4px 0 0 4px;
+}
+
+.version-date {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.version-features {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.version-features li {
+    margin-bottom: 10px;
+    color: var(--text-color);
+    position: relative;
+    animation: fadeInRight 0.5s ease;
+    animation-fill-mode: both;
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.version-features li:nth-child(1) { animation-delay: 0.1s; }
+.version-features li:nth-child(2) { animation-delay: 0.2s; }
+.version-features li:nth-child(3) { animation-delay: 0.3s; }
+.version-features li:nth-child(4) { animation-delay: 0.4s; }
+.version-features li:nth-child(5) { animation-delay: 0.5s; }
+
+.version-features li::before {
+    content: '•';
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: -15px;
+}
+
+/* Remove popup modal styles */
+.modal,
+.modal-content,
+.close-modal,
+.version-details {
+    display: none !important;
+}
+
+.version-text {
+    display: none;
 }
 
 @media (max-width: 768px) {
@@ -755,19 +1003,31 @@
 
 @media (max-width: 768px) {
     .upgrade-container {
-        padding: 15px;
-        grid-template-columns: 1fr;
+        display: none;
     }
     
     .upgrade-card {
-        padding: 15px;
+        display: none;
     }
     
-    .upgrade-header h2 {
-        font-size: 16px;
+    .upgrade-header {
+        display: none;
     }
     
-    .current-value {
-        font-size: 14px;
+    .upgrade-content {
+        display: none;
     }
+}
+
+.author-credit {
+    position: fixed;
+    bottom: 60px; 
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    padding: 5px;
+    z-index: 900;
 }

@@ -23,6 +23,36 @@
     --border-color: rgba(255,255,255,0.1);
 }
 
+/* Update animation for badges */
+.level-badge:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px var(--glow-color);
+}
+
+@keyframes mysticPulse {
+    0% { filter: hue-rotate(0deg) brightness(1); }
+    50% { filter: hue-rotate(180deg) brightness(1.4); box-shadow: 0 0 20px var(--glow-color); transform: scale(1.05); }
+    100% { filter: hue-rotate(360deg) brightness(1); }
+}
+
+@keyframes divinePulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.08); filter: brightness(1.4); box-shadow: 0 0 25px var(--glow-color); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes cosmicPulse {
+    0% { background-position: 0% 50%; box-shadow: 0 0 10px var(--glow-color); }
+    50% { background-position: 100% 50%; box-shadow: 0 0 30px var(--glow-color); transform: translateY(-2px); }
+    100% { background-position: 0% 50%; box-shadow: 0 0 10px var(--glow-color); }
+}
+
+@keyframes infinitePulse {
+    0% { box-shadow: 0 0 5px var(--glow-color); }
+    50% { box-shadow: 0 0 30px var(--glow-color), 0 0 50px var(--glow-color); transform: translateY(-3px) scale(1.05); }
+    100% { box-shadow: 0 0 5px var(--glow-color); }
+}
+
 /* Modal styles */
 .modal {
     display: none;
@@ -44,6 +74,12 @@
     max-width: 500px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close-modal {
