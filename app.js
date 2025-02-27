@@ -1,7 +1,7 @@
 let currentSubject = 'turkce';
 let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
-let rpMultiplier = 0.5; 
+let rpMultiplier = 0.75; 
 let kuranEnabled = localStorage.getItem('kuranEnabled') !== 'false';
 let kitapEnabled = localStorage.getItem('kitapEnabled') !== 'false';
 let lastExportDate = localStorage.getItem('lastExportDate') || null;
@@ -295,6 +295,7 @@ function updateLevelUI() {
         `${totalPoints - currentLevel.min}/${currentLevel.max - currentLevel.min} XP`);
     safeUpdateElement('nextLevelInfo', currentLevel.nextLevel || 'Maksimum Seviye');
     safeUpdateElement('totalPointsInfo', totalPoints);
+    safeUpdateElement('permMultiplierInfo', rpMultiplier);
 }
 
 function renderAllLevels() {
