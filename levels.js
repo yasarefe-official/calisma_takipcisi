@@ -70,12 +70,3 @@ function getCurrentLevel(points) {
     }
     return null;
 }
-
-function getAllLevels() {
-    return Object.entries(LEVELS).map(([name, data]) => {
-        return {
-            name,
-            ...data
-        };
-    });
-}

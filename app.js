@@ -1,36 +1,53 @@
 let currentSubject = 'turkce';
 let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+let dailyRP = parseInt(localStorage.getItem('dailyRP')) || 0;
 let money = parseInt(localStorage.getItem('money')) || 0;
 let rpMultiplier = parseFloat(localStorage.getItem('rpMultiplier')) || 0.5;
-let lastExportDate = localStorage.getItem('lastExportDate') || null;
+let dailyMultiplier = parseFloat(localStorage.getItem('dailyMultiplier')) || 1.5;
 let kuranEnabled = localStorage.getItem('kuranEnabled') !== 'false';
 let kitapEnabled = localStorage.getItem('kitapEnabled') !== 'false';
+let lastExportDate = localStorage.getItem('lastExportDate') || null;
+let rewardEndTime = localStorage.getItem('rewardEndTime') ? parseInt(localStorage.getItem('rewardEndTime')) : null;
+let currentRewardTimer = null;
 
 function calculatePoints(dogru, kuranSayfa, kitapSayfa) {
     const testPoints = Math.floor(dogru * rpMultiplier);
     let kuranPoints = 0;
     let kitapPoints = 0;
-    
-    // Add money based on correct answers (quarter of correct answers, rounded down)
-    const earnedMoney = Math.floor(dogru / 4);
-    money += earnedMoney;
-    localStorage.setItem('money', money);
+    let readingReward = 0;
     
     if (kuranEnabled) {
         kuranPoints = Math.floor(kuranSayfa * 0.6);
+        readingReward += Math.floor(kuranSayfa / 4);
     }
     
     if (kitapEnabled) {
         kitapPoints = Math.floor(kitapSayfa * 0.4);
+        readingReward += Math.floor(kitapSayfa / 4);
     }
+    
+    money += readingReward;
+    localStorage.setItem('money', money);
     
     return {
         testPoints,
         kuranPoints,
         kitapPoints,
         total: testPoints + kuranPoints + kitapPoints,
-        earnedMoney
+        readingReward
+    };
+}
+
+function calculateDailyPoints(dogru, kuranSayfa, kitapSayfa) {
+    const testPoints = Math.floor(dogru * 1.5 * dailyMultiplier);
+    const kuranPoints = Math.floor(kuranSayfa * 1.6);
+    const kitapPoints = Math.floor(kitapSayfa * 1.4);
+    return {
+        testPoints,
+        kuranPoints,
+        kitapPoints,
+        total: testPoints + kuranPoints + kitapPoints
     };
 }
 
@@ -56,11 +73,16 @@ function updatePointsPreview() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
+    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
 
-    document.getElementById('testPoints').textContent = points.testPoints;
-    document.getElementById('kuranPoints').textContent = points.kuranPoints;
-    document.getElementById('kitapPoints').textContent = points.kitapPoints;
-    document.getElementById('totalPointsPreview').textContent = points.total;
+    document.getElementById('testPoints').textContent = 
+        `${points.testPoints} (Günlük: ${dailyPoints.testPoints})`;
+    document.getElementById('kuranPoints').textContent = 
+        `${points.kuranPoints} (Günlük: ${dailyPoints.kuranPoints})`;
+    document.getElementById('kitapPoints').textContent = 
+        `${points.kitapPoints} (Günlük: ${dailyPoints.kitapPoints})`;
+    document.getElementById('totalPointsPreview').textContent = 
+        `${points.total} (Günlük: ${dailyPoints.total})`;
 }
 
 function kaydet() {
@@ -69,10 +91,13 @@ function kaydet() {
     const kitapSayfa = parseInt(document.getElementById('hikaye').value) || 0;
 
     const points = calculatePoints(dogru, kuranSayfa, kitapSayfa);
+    const dailyPoints = calculateDailyPoints(dogru, kuranSayfa, kitapSayfa);
     
     totalPoints += points.total;
+    dailyRP += dailyPoints.total;
     
     localStorage.setItem('totalPoints', totalPoints);
+    localStorage.setItem('dailyRP', dailyRP);
     
     updateLevelUI();
     
@@ -90,6 +115,8 @@ function kaydet() {
     localStorage.setItem('calismalar', JSON.stringify(calismalar));
     tabloyuGuncelle();
     formuTemizle();
+    
+    startRewardTimer();
 }
 
 function formuTemizle() {
@@ -135,6 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
 const currentLevel = document.getElementById('currentLevel');
 if (currentLevel) {
     currentLevel.onclick = null; // Remove the click handler
+}
+
+function startRewardTimer() {
+    giveReward();
+}
+
+function giveReward() {
+    const dailyReward = Math.floor(dailyRP / 4);
+    money += dailyReward;
+    localStorage.setItem('money', money);
+    
+    const levelElements = document.getElementById('currentLevel');
+    if (levelElements) {
+        updateLevelUI();
+    }
+    
+    alert(`Günlük ödülünüz verildi: ${dailyReward} para!`);
 }
 
 function updateLevelUI() {
@@ -202,13 +246,10 @@ function updateLevelUI() {
         return null;
     }
 
-    function getAllLevels() {
-        return Object.keys(LEVELS).map(level => ({ name: level, ...LEVELS[level] }));
-    }
-
     const currentLevel = getCurrentLevel(totalPoints);
+    const dailyLevel = getCurrentLevel(dailyRP);
     
-    if (!currentLevel) return;
+    if (!currentLevel || !dailyLevel) return;
 
     const safeUpdateElement = (id, value) => {
         const element = document.getElementById(id);
@@ -245,20 +286,16 @@ function updateLevelUI() {
     safeUpdateElement('rpMultiplierInfo', rpMultiplier.toFixed(1));
     safeUpdateElement('permMultiplierInfo', rpMultiplier.toFixed(1));
     safeUpdateElement('currentMultiplier', rpMultiplier.toFixed(1));
+    safeUpdateElement('dailyMultiplierValue', (1.5 * dailyMultiplier).toFixed(1));
+    safeUpdateElement('dailyMultiplierElement', dailyMultiplier.toFixed(1));
     
-    // Render all available levels
-    const levelsListElement = document.getElementById('levelsList');
-    if (levelsListElement) {
-        levelsListElement.innerHTML = '';
-        const allLevels = getAllLevels();
-        
-        allLevels.forEach(level => {
-            const levelItem = document.createElement('div');
-            levelItem.className = `level-item ${level.badge}`;
-            levelItem.textContent = level.name;
-            levelsListElement.appendChild(levelItem);
-        });
-    }
+    safeUpdateElement('dailyRPInfo', dailyRP);
+    safeUpdateElement('currentDailyLevelInfo', dailyLevel.name);
+    
+    safeUpdateProgressBar('dailyProgressFill', 'dailyProgressText', dailyLevel.progress,
+        `${dailyRP - dailyLevel.min}/${dailyLevel.max - dailyLevel.min} XP`);
+    
+    safeUpdateElement('nextDailyLevelInfo', dailyLevel.nextLevel || 'Maksimum Seviye');
 }
 
 function tabloyuGuncelle() {
@@ -284,7 +321,7 @@ function tabloyuGuncelle() {
 
 function updateLastExportDate() {
     const lastExportElement = document.getElementById('lastExportDate');
-    if (lastExportElement && lastExportDate) {
+    if (lastExportDate) {
         const date = new Date(lastExportDate);
         lastExportElement.textContent = date.toLocaleDateString('tr-TR');
     }
@@ -304,15 +341,47 @@ function upgradeMultiplier() {
     }
 }
 
+function upgradeDailyMultiplier() {
+    const upgradeCost = 100;
+    if (money >= upgradeCost) {
+        money -= upgradeCost;
+        dailyMultiplier += 0.1;
+        localStorage.setItem('money', money);
+        localStorage.setItem('dailyMultiplier', dailyMultiplier);
+        updateLevelUI();
+        alert('Günlük çarpan başarıyla geliştirildi!');
+    } else {
+        alert('Yeterli paranız yok!');
+    }
+}
+
 function resetLevels() {
     if (confirm('Tüm kademe verilerini sıfırlamak istediğinizden emin misiniz?')) {
         totalPoints = 0;
+        dailyRP = 0;
         rpMultiplier = 0.5;
+        dailyMultiplier = 1.5;
         
         localStorage.setItem('totalPoints', totalPoints);
+        localStorage.setItem('dailyRP', dailyRP);
         localStorage.setItem('rpMultiplier', rpMultiplier);
+        localStorage.setItem('dailyMultiplier', dailyMultiplier);
         
         updateLevelUI();
         alert('Kademe verileri başarıyla sıfırlandı!');
     }
 }
+
+window.upgradeDailyMultiplier = function() {
+    const upgradeCost = 100;
+    if (money >= upgradeCost) {
+        money -= upgradeCost;
+        dailyMultiplier += 0.1;
+        localStorage.setItem('money', money);
+        localStorage.setItem('dailyMultiplier', dailyMultiplier);
+        updateLevelUI();
+        alert('Günlük çarpan başarıyla geliştirildi!');
+    } else {
+        alert('Yeterli paranız yok!');
+    }
+};

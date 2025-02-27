@@ -136,7 +136,9 @@
 }
 
 .level-badge.daily {
-  display: none;
+  top: 60px;
+  font-size: 12px;
+  padding: 6px 12px;
 }
 
 #currentLevel {
@@ -678,9 +680,14 @@
     display: none;
 }
 
-/* Remove streak card styles */
+/* Add streak card styles for levels page */
 .streak-card {
-    display: none;
+    background: var(--card-background);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    text-align: center;
 }
 
 .streak-display {
@@ -688,69 +695,40 @@
 }
 
 .streak-display-large {
-    display: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
+    cursor: pointer;  
 }
 
 .streak-count-large {
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 24px;
+}
+
+/* Remove reward timer styles */
+#rewardTimeDisplay {
     display: none;
 }
 
-/* Modal styles removed */
-.modal {
-    display: none;
-}
-
-.modal-content {
-    display: none;
-}
-
-.close-modal {
-    display: none;
-}
-
-/* Add styles for the levels list display */
-.all-levels-section {
-    margin: 15px 0;
-    padding: 15px;
-    background: var(--card-background);
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.all-levels-section h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
-    color: var(--primary-color);
-}
-
-.levels-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px 0;
-}
-
-.level-item {
-    padding: 10px;
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    flex: 1;
     text-align: center;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    padding: 8px 4px; 
 }
 
-@media (max-width: 480px) {
-    .levels-list {
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    }
-    
-    .level-item {
-        font-size: 12px;
-        padding: 8px 5px;
-    }
+.nav-item i {
+    font-size: 22px; 
+    margin-bottom: 2px;
 }
 
 @media (max-width: 768px) {
