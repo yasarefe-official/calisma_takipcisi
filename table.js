@@ -52,8 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Save back to localStorage
             localStorage.setItem('calismalar', JSON.stringify(calismalar));
             
-            // Refresh the page instead of just updating the table
-            location.reload();
+            // Update the table display immediately
+            tabloyuGuncelle();
+            
+            // Reset select all checkbox
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+            
+            // Disable delete button again
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.disabled = true;
+            }
         }
     }
 });

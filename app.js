@@ -1,7 +1,7 @@
 let currentSubject = 'turkce';
 let calismalar = JSON.parse(localStorage.getItem('calismalar')) || [];
 let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
-let rpMultiplier = 0.75; 
+let rpMultiplier = 0.5; 
 let kuranEnabled = localStorage.getItem('kuranEnabled') !== 'false';
 let kitapEnabled = localStorage.getItem('kitapEnabled') !== 'false';
 let lastExportDate = localStorage.getItem('lastExportDate') || null;
@@ -137,10 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         updateLevelUI();
                         renderAllLevels();
                     }
-                    
-                    if (pageId === 'versionPage') {
-                        displayVersionNotes();
-                    }
                 }, 300);
             }
         });
@@ -163,30 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     renderAllLevels();
 });
-
-function displayVersionNotes() {
-    const versionNotesContainer = document.getElementById('versionNotesContainer');
-    if (!versionNotesContainer) return;
-    
-    versionNotesContainer.innerHTML = '';
-    
-    const currentVersionCard = document.createElement('div');
-    currentVersionCard.className = 'version-card';
-    
-    currentVersionCard.innerHTML = `
-        <h3>Sürüm v10</h3>
-        <div class="version-date">Yayınlanma: ${new Date().toLocaleDateString('tr-TR')}</div>
-        <ul class="version-features">
-            <li>Para sistemi kaldırıldı</li>
-            <li>Modern animasyonlar eklendi</li>
-            <li>Kademeler sayfası güncellendi - tüm kademeler gösteriliyor</li>
-            <li>Arayüz iyileştirmeleri yapıldı</li>
-            <li>Performans optimizasyonu</li>
-        </ul>
-    `;
-    
-    versionNotesContainer.appendChild(currentVersionCard);
-}
 
 function updateLevelUI() {
     const LEVELS = {
@@ -295,7 +267,6 @@ function updateLevelUI() {
         `${totalPoints - currentLevel.min}/${currentLevel.max - currentLevel.min} XP`);
     safeUpdateElement('nextLevelInfo', currentLevel.nextLevel || 'Maksimum Seviye');
     safeUpdateElement('totalPointsInfo', totalPoints);
-    safeUpdateElement('permMultiplierInfo', rpMultiplier);
 }
 
 function renderAllLevels() {

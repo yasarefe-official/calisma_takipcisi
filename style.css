@@ -4,7 +4,7 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     overflow: hidden;
     animation: slideUp 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-    padding-bottom: 90px;
+    padding-bottom: 80px;
     margin-bottom: 0;
     backdrop-filter: blur(5px);
     transition: all 0.4s ease;
@@ -559,7 +559,7 @@ input:focus {
     animation: divinePulse 4s infinite;
 }
 
-.cosmic {
+.cos!mic {
     --badge-start: #3F51B5;
     --badge-end: #2196F3;
     --glow-color: rgba(63, 81, 181, 0.5);
@@ -894,77 +894,19 @@ input:focus {
     display: none;
 }
 
-/* Add version notes page styles */
-.version-card {
-    background: var(--card-background);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    animation: cardPop 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.version-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.version-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--primary-color);
-    border-radius: 4px 0 0 4px;
-}
-
-.version-date {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-.version-features {
-    padding-left: 20px;
-    margin: 0;
-}
-
-.version-features li {
-    margin-bottom: 10px;
-    color: var(--text-color);
-    position: relative;
-    animation: fadeInRight 0.5s ease;
-    animation-fill-mode: both;
-}
-
-@keyframes fadeInRight {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.version-features li:nth-child(1) { animation-delay: 0.1s; }
-.version-features li:nth-child(2) { animation-delay: 0.2s; }
-.version-features li:nth-child(3) { animation-delay: 0.3s; }
-.version-features li:nth-child(4) { animation-delay: 0.4s; }
-.version-features li:nth-child(5) { animation-delay: 0.5s; }
-
+/* Remove version notes page styles */
+.version-card,
+.version-date,
+.version-features,
+.version-features li,
+@keyframes fadeInRight,
+.version-features li:nth-child(1),
+.version-features li:nth-child(2),
+.version-features li:nth-child(3),
+.version-features li:nth-child(4),
+.version-features li:nth-child(5),
 .version-features li::before {
-    content: '•';
-    color: var(--primary-color);
-    font-weight: bold;
-    position: absolute;
-    left: -15px;
+    display: none;
 }
 
 /* Remove popup modal styles */
@@ -973,10 +915,6 @@ input:focus {
 .close-modal,
 .version-details {
     display: none !important;
-}
-
-.version-text {
-    display: none;
 }
 
 @media (max-width: 768px) {
@@ -1017,17 +955,4 @@ input:focus {
     .upgrade-content {
         display: none;
     }
-}
-
-.author-credit {
-    position: fixed;
-    bottom: 60px; 
-    left: 0;
-    width: 100%;
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    padding: 5px;
-    z-index: 900;
 }
