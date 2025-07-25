@@ -11,13 +11,25 @@
       "src": "icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "id": "/?source=pwa",
@@ -28,5 +40,10 @@
   "screenshots": [],
   "categories": ["education", "lifestyle"],
   "lang": "tr-TR",
-  "scope": "/"
+  "scope": "/",
+  "dir": "ltr",
+  "iarc_rating_id": "e84b072d-4543-429f-952e-d0a9f8474d3c",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope_extensions": []
 }
